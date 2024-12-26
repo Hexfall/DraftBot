@@ -186,7 +186,7 @@ class DraftBot(discord.Client):
                         picks[k] = options[k][0]
                 break
             
-            if rm.data["publicdraft"]:
+            if rm.data["public"]:
                 await message.channel.send("\n- ".join(["Draft step ready:"] + [f"{k}:\n  - {'\n  - '.join(v)}" for k, v in options.items()]))
             
             async with TaskGroup() as tg:
