@@ -4,6 +4,7 @@ import DraftBot
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 def main() -> None:
     bot = DraftBot.DraftBot(intents=intents)
