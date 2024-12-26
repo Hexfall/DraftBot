@@ -1,3 +1,4 @@
+import asyncio
 import time
 from asyncio import TaskGroup
 from random import shuffle, seed
@@ -166,6 +167,19 @@ class DraftBot(discord.Client):
                         if u.mention == user:
                             print("found user")
                             await u.send("\n- ".join(["Your options are:"] + [f"{i+1}. {o}" for i, o in enumerate(os)]))
+                            
+                            def is_pick(m) -> bool:
+                                return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)
+                            
+                            try:
+                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*4) # Four hour timeout
+                            except asyncio.TimeoutError:
+                                return await message.channel.send(f"{u} failed to pick before the timeout.")
+
+                            pick_lock.acquire()
+                            picks[user] = os[int(pick.content) - 1]
+                            pick_lock.release()
+
                             break
                     else:
                         print("failed to find user")
