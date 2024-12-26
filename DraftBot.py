@@ -1,5 +1,6 @@
 import discord
 
+from Models.PlayerModel import PlayerModel
 
 PREFIX = "!draft"
 
@@ -31,8 +32,27 @@ class DraftBot(discord.Client):
         await message.channel.send("Idk man, figure it out.")
     
     async def echo(self, message: discord.message.Message, text):
-        await message.channel.send(f"`{text}`")
+        await message.channel.send(f"{text}")
         
     async def ping(self, message: discord.message.Message, text):
         await message.channel.send(message.author.mention)
         await message.channel.send(message.guild.name)
+        
+    async def players(self, message: discord.message.Message, text):
+        com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
+        m = PlayerModel(str(message.guild.id))
+        if com == "add":
+            for p in mantissa.split():
+                m.add_player(p.strip())
+            await message.add_reaction("👍")
+        elif com == "remove":
+            for p in mantissa.split():
+                m.rem_player(p.strip())
+            await message.add_reaction("👍")
+        elif com == "show":
+            await message.channel.send('\n\t'.join(["Players currently in draft:"] + m.players))
+        elif com == "clear":
+            m.clear_players()
+            await message.add_reaction("👍")
+        else:
+            await message.channel.send("Invalid syntax. !draft help for help.")
