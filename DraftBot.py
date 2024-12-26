@@ -2,6 +2,7 @@ import discord
 
 from Models.PlayerModel import PlayerModel
 from Models.PotModel import PotModel
+from Models.RulesModel import RulesModel
 
 PREFIX = "!draft"
 
@@ -95,6 +96,28 @@ class DraftBot(discord.Client):
             await message.add_reaction("👍")
         elif com == "clear":
             m.clear_pot()
+            await message.add_reaction("👍")
+        else:
+            await message.channel.send("Invalid syntax. !draft help for help.")
+
+    async def rules(self, message: discord.message.Message, text):
+        com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
+        m = RulesModel(str(message.guild.id))
+        if com == "allowmulligans":
+            if mantissa.strip().lower() == "y":
+                m.set_mulligans(True)
+            elif mantissa.strip().lower() == "n":
+                m.set_mulligans(False)
+            else:
+                await message.channel.send("Invalid syntax. !draft help for help.")
+                return
+            await message.add_reaction("👍")
+        elif com == "optionsperplayer":
+            try:
+                m.set_options(int(mantissa.strip()))
+            except ValueError:
+                await message.channel.send("Invalid syntax. !draft help for help.")
+                return
             await message.add_reaction("👍")
         else:
             await message.channel.send("Invalid syntax. !draft help for help.")
