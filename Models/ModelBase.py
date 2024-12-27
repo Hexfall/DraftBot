@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-data_path = Path(__file__).parent.parent.joinpath('data')
+data_path = Path(__file__).parent.parent.joinpath('data').absolute()
 
 class ModelBase:
     def __init__(self, guild: str, file_name: str) -> None:

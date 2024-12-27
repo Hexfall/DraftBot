@@ -1,6 +1,9 @@
 #!/usr/bin/python
 import discord
 import DraftBot
+from pathlib import Path
+
+token_path = Path(__file__).parent.joinpath("token.txt").absolute()
 
 
 intents = discord.Intents.default()
@@ -12,7 +15,7 @@ def main() -> None:
     bot.run(get_token())
 
 def get_token() -> str:
-    with open('token.txt', 'r') as file:
+    with open(token_path, 'r') as file:
         return file.read().strip()
 
 if __name__ == '__main__':
