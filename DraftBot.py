@@ -249,7 +249,7 @@ class DraftBot(discord.Client):
         
         while not order.empty():
             player = order.pop(0)
-            await message.channel.send(f"It is your turn to pick {player}.")
+            await message.channel.send(f"It is your turn to pick {player}. Your next message in this channel will be considered your pick.")
 
             def is_pick(m) -> bool:
                 return m.author.mention == player and m.channel == message.channel
