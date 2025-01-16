@@ -177,7 +177,9 @@ class DraftBot(discord.Client):
                     for u in message.guild.members:
                         if u.mention == user:
                             print("found user")
-                            await u.send("\n- ".join(["Your options are:"] + [f"{i+1}. {o}" for i, o in enumerate(os)]))
+                            s = "\n- ".join(["Your options are:"] + [f"{i+1}. {o}" for i, o in enumerate(os)])
+                            s += "\nRespond with a message here or in the channel being used for the draft with the number of the option you'd like to pick."
+                            await u.send(s)
                             
                             def is_pick(m) -> bool:
                                 return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)
