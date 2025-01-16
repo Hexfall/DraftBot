@@ -95,24 +95,34 @@ class DraftBot(discord.Client):
         elif com == "clear":
             m.clear_players()
             await message.add_reaction("👍")
+        elif com == "random":
+            seed(time.time())
+            p = m.data.copy()
+            shuffle(p)
+            await message.channel.send("\n".join(["Here's your randomly ordered list of players:"] + [f"{i+1}. {u}" for i, u in enumerate(p)]))
         else:
             await message.channel.send("Invalid syntax. !draft help for help.")
             await message.author.send("This is a dm")
     
     async def pot(self, message: discord.message.Message, text):
         com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
-        m = PotModel(str(message.guild.id))
         if com == "show":
+            m = PotModel(str(message.guild.id))
             await message.channel.send('\n- '.join([f"There are currently {len(m.data)} options in the pot:"] + m.data))
         elif com == "add":
+            m = PotModel(str(message.guild.id))
             m.add_pot(mantissa.strip())
             await message.add_reaction("👍")
         elif com == "remove":
+            m = PotModel(str(message.guild.id))
             m.rem_pot(mantissa.strip())
             await message.add_reaction("👍")
         elif com == "clear":
+            m = PotModel(str(message.guild.id))
             m.clear_pot()
             await message.add_reaction("👍")
+        elif com == "draft":
+            await self.draft_pot(message)
         else:
             await message.channel.send("Invalid syntax. !draft help for help.")
 
@@ -172,13 +182,14 @@ class DraftBot(discord.Client):
                                 return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)
                             
                             try:
-                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*4) # Four hour timeout
+                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24) # Twentyfour hour timeout
                             except asyncio.TimeoutError:
                                 return await message.channel.send(f"{u} failed to pick before the timeout.")
 
                             pick_lock.acquire()
                             picks[user] = os[int(pick.content) - 1]
                             pick_lock.release()
+                            await pick.add_reaction("👍")
 
                             break
                     else:
@@ -201,7 +212,7 @@ class DraftBot(discord.Client):
                 break
             
             if rm.data["public"]:
-                await message.channel.send("\n- ".join(["Draft step ready:"] + [f"{k}:\n  - {'\n  - '.join(v)}" for k, v in options.items()]))
+                await message.channel.send("\n- ".join(["Draft step ready: "] + [(f"{k}: {picks[k]}" if picks[k] != "Mulligan" else f"{k}:\n  - {'\n  - '.join(v)}") for k, v in options.items()]))
             
             async with TaskGroup() as tg:
                 print("entered task group")
@@ -220,3 +231,38 @@ class DraftBot(discord.Client):
         
         await message.channel.send("\n- ".join(["Draft has been finalized:"] + [f"{k}: {v}" for k, v in picks.items()]))
         
+    async def draft_pot(self, message: discord.message.Message):
+        seed(time.time())
+        with PlayerModel(str(message.guild.id)) as pm:
+            p = pm.data.copy()
+        with PotModel(str(message.guild.id)) as om:
+            om.clear_pot()
+        shuffle(p)
+        await message.channel.send("\n".join(["Pick will be added to the pot using snake draft with the following randomly ordered list of players:"] + [f"{i+1}. {u}" for i, u in enumerate(p)]))
+        order = p.copy()
+        with RulesModel(str(message.guild.id)) as rm:
+            for i in range(rm.data["options"] - 1):
+                if i % 2 == 0:
+                    order += p[::-1]
+                else:
+                    order += p
+        
+        while not order.empty():
+            player = order.pop(0)
+            await message.channel.send(f"It is your turn to pick {player}.")
+
+            def is_pick(m) -> bool:
+                return m.author.mention == player and m.channel == message.channel
+
+            try:
+                pick: discord.message.Message = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24) # Twentyfour hour timeout
+            except asyncio.TimeoutError:
+                return await message.channel.send(f"{player} failed to pick before the timeout. Terminating draft.")
+            
+            with PotModel(str(message.guild.id)) as om:
+                om.add_pot(pick.content)
+            await pick.add_reaction("👍")
+
+        with PotModel(str(message.guild.id)) as om:
+            await message.channel.send('\n- '.join([f"Here are the finalized options in the pot:"] + om.data))
+            
