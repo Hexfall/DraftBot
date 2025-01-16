@@ -239,7 +239,7 @@ class DraftBot(discord.Client):
         with PotModel(str(message.guild.id)) as om:
             om.clear_pot()
         shuffle(p)
-        await message.channel.send("\n".join(["Pick will be added to the pot using snake draft with the following randomly ordered list of players:"] + [f"{i+1}. {u}" for i, u in enumerate(p)]))
+        await message.channel.send("\n".join(["Picks will be added to the pot using snake draft with the following randomly ordered list of players:"] + [f"{i+1}. {u}" for i, u in enumerate(p)]))
         order = p.copy()
         with RulesModel(str(message.guild.id)) as rm:
             for i in range(rm.data["options"] - 1):
@@ -248,7 +248,7 @@ class DraftBot(discord.Client):
                 else:
                     order += p
         
-        while not order.empty():
+        while not len(order) == 0:
             player = order.pop(0)
             await message.channel.send(f"It is your turn to pick {player}. Your next message in this channel will be considered your pick.")
 

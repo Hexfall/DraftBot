@@ -22,3 +22,9 @@ class ModelBase:
     def _save_data(self):
         with open(self.file_path, "w") as f:
             f.write(json.dumps(self.data, indent=4))
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._save_data()
