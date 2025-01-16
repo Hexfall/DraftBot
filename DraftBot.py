@@ -46,20 +46,21 @@ class DraftBot(discord.Client):
 ```
 !draft
     ⊢ players
-        ⊢ show
-        ⊢ add <player> [player]...
-        ⊢ remove <player> [player]...
-        ⊢ clear
+        ⊢ show                          # Shows the current players on this server.
+        ⊢ add <player> [player]...      # Adds a player to the draft.
+        ⊢ remove <player> [player]...   # Removes a player from the draft.
+        ⊢ clear                         # Removes all players from the draft.
     ⊢ pot
-        ⊢ show
-        ⊢ add <option>
-        ⊢ remove <option>
-        ⊢ clear
+        ⊢ draft                         # Begin a snakedraft with the current players.
+        ⊢ show                          # Shows the current options in the pot.
+        ⊢ add <option>                  # Adds a new option to the draft.
+        ⊢ remove <option>               # Removes an option from the draft.
+        ⊢ clear                         # Removes all options from the draft.
     ⊢ rules
-        ⊢ allowmulligans <y|n>
-        ⊢ optionsperplayer <number>
-        ⊢ publicdraft <y|n>
-    ⊢ draft
+        ⊢ allowmulligans <y|n>          # Changes whether or not to allow mulligans during draft.
+        ⊢ optionsperplayer <number>     # Changes the amount of options given to each players (and rounds in pot draft).
+        ⊢ publicdraft <y|n>             # Whether players' options are public, or only given in DMs.
+    ⊢ draft                             # Draft options to players.
 ```'''
         await message.channel.send(s)
     
