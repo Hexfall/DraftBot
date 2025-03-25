@@ -258,7 +258,7 @@ class DraftBot(discord.Client):
                 return m.author.mention == player and m.channel == message.channel and m.content.startswith("?") and len(m.content) > 1
 
             try:
-                pick: discord.message.Message = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24) # Twentyfour hour timeout
+                pick: discord.message.Message = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*48) # Fortyeight hour timeout
             except asyncio.TimeoutError:
                 return await message.channel.send(f"{player} failed to pick before the timeout. Terminating draft.")
             
