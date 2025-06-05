@@ -73,7 +73,7 @@ class DraftBot(discord.Client):
         
     async def players(self, message: discord.message.Message, text):
         com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
-        m = PlayerModel(str(message.guild.id))
+        m = PlayerModel(str(message.channel.id))
         if com == "show":
             await message.channel.send('\n- '.join([f"There are currently {len(m.data)} players in the draft:"] + m.data))
         elif com == "add":
@@ -108,18 +108,18 @@ class DraftBot(discord.Client):
     async def pot(self, message: discord.message.Message, text):
         com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
         if com == "show":
-            m = PotModel(str(message.guild.id))
+            m = PotModel(str(message.channel.id))
             await message.channel.send('\n- '.join([f"There are currently {len(m.data)} options in the pot:"] + m.data))
         elif com == "add":
-            m = PotModel(str(message.guild.id))
+            m = PotModel(str(message.channel.id))
             m.add_pot(mantissa.strip())
             await message.add_reaction("👍")
         elif com == "remove":
-            m = PotModel(str(message.guild.id))
+            m = PotModel(str(message.channel.id))
             m.rem_pot(mantissa.strip())
             await message.add_reaction("👍")
         elif com == "clear":
-            m = PotModel(str(message.guild.id))
+            m = PotModel(str(message.channel.id))
             m.clear_pot()
             await message.add_reaction("👍")
         elif com == "draft":
@@ -129,7 +129,7 @@ class DraftBot(discord.Client):
 
     async def rules(self, message: discord.message.Message, text):
         com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
-        m = RulesModel(str(message.guild.id))
+        m = RulesModel(str(message.channel.id))
         if com == "allowmulligans":
             if mantissa.strip().lower() == "y":
                 m.set_mulligans(True)
@@ -154,10 +154,10 @@ class DraftBot(discord.Client):
             await message.channel.send("Invalid syntax. !draft help for help.")
     
     async def draft(self, message: discord.message.Message, text):
-        print(f"Initiating draft on {message.guild.name}.")
-        rm = RulesModel(str(message.guild.id))
-        pm = PlayerModel(str(message.guild.id))
-        om = PotModel(str(message.guild.id))
+        print(f"Initiating draft in {message.channel.name} on {message.guild.name}.")
+        rm = RulesModel(str(message.channel.id))
+        pm = PlayerModel(str(message.channel.id))
+        om = PotModel(str(message.channel.id))
         
         if len(pm.data) * rm.data["options"] > len(om.data):
             return await message.channel.send(f"Not enough options in pot to draft {rm.data['options']} options to each player. You need {len(pm.data) * rm.data["options"]} options to draft for {len(pm.data)} players, but you only have {len(om.data)} options currently.")
@@ -236,14 +236,14 @@ class DraftBot(discord.Client):
         
     async def draft_pot(self, message: discord.message.Message):
         seed(time.time())
-        with PlayerModel(str(message.guild.id)) as pm:
+        with PlayerModel(str(message.channel.id)) as pm:
             p = pm.data.copy()
-        with PotModel(str(message.guild.id)) as om:
+        with PotModel(str(message.channel.id)) as om:
             om.clear_pot()
         shuffle(p)
         await message.channel.send("\n".join(["Picks will be added to the pot using snake draft with the following randomly ordered list of players:"] + [f"{i+1}. {u}" for i, u in enumerate(p)]))
         order = p.copy()
-        with RulesModel(str(message.guild.id)) as rm:
+        with RulesModel(str(message.channel.id)) as rm:
             for i in range(rm.data["options"] - 1):
                 if i % 2 == 0:
                     order += p[::-1]
@@ -262,10 +262,10 @@ class DraftBot(discord.Client):
             except asyncio.TimeoutError:
                 return await message.channel.send(f"{player} failed to pick before the timeout. Terminating draft.")
             
-            with PotModel(str(message.guild.id)) as om:
+            with PotModel(str(message.channel.id)) as om:
                 om.add_pot(pick.content[1:])
             await pick.add_reaction("👍")
 
-        with PotModel(str(message.guild.id)) as om:
+        with PotModel(str(message.channel.id)) as om:
             await message.channel.send('\n- '.join([f"Here are the finalized options in the pot:"] + om.data))
             
