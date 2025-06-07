@@ -185,7 +185,7 @@ class DraftBot(discord.Client):
                                 return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)
                             
                             try:
-                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24) # Twentyfour hour timeout
+                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*48) # Fortyeight hour timeout
                             except asyncio.TimeoutError:
                                 return await message.channel.send(f"{u} failed to pick before the timeout.")
 
