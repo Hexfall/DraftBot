@@ -72,6 +72,7 @@ class DraftBot(discord.Client):
         ⊢ allowmulligans <y|n>          # Changes whether or not to allow mulligans during draft.
         ⊢ optionsperplayer <number>     # Changes the amount of options given to each players (and rounds in pot draft).
         ⊢ publicdraft <y|n>             # Whether players' options are public, or only given in DMs.
+    ⊢ remind <@user> <duration[(h)|m]> <message>
     ⊢ draft                             # Draft options to players.
 ```'''
         await message.channel.send(s)
@@ -105,8 +106,16 @@ class DraftBot(discord.Client):
                 fails = False
             
             if fails:
-                await message.channel.send("Invalid syntax. !draft help for help.")
+                await message.channel.send("Failed to parse duration. Please try again.")
                 return
+        
+        async for u in message.guild.fetch_members(limit=None):
+            if u.mention == user or u.display_name == user or u.name == user:
+                user = u
+                break
+        else:
+            await message.channel.send(f"Failed to find user {user}. Please try again.")
+            return
             
         await asyncio.sleep(duration)
         await message.channel.send(f"{user.mention} {remind_message}")
