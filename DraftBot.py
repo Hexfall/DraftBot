@@ -83,6 +83,34 @@ class DraftBot(discord.Client):
         await message.channel.send(message.author.mention)
         await message.channel.send(message.guild.name)
         
+    async def remind(self, message: discord.message.Message, text):
+        try:
+            user, duration, remind_message = text.split(" ", 2)
+        except:
+            await message.channel.send("Invalid syntax. Correct form is `!draft remind <@user> <duration[(h)|m]> <reminder message>`")
+            return
+
+        if duration.isdigit():
+            duration = int(duration) * 60 * 60
+        else:
+            fails = True
+            
+            if not duration[:-1].isdigit():
+                pass
+            elif duration[-1] == "h":
+                duration = int(duration[:-1]) * 60 * 60
+                fails = False
+            elif duration[-1] == "m":
+                duration = int(duration[:-1]) * 60
+                fails = False
+            
+            if fails:
+                await message.channel.send("Invalid syntax. !draft help for help.")
+                return
+            
+        await asyncio.sleep(duration)
+        await message.channel.send(f"{user.mention} {remind_message}")
+        
     async def players(self, message: discord.message.Message, text):
         com, mantissa = text.split(" ")[0].lower().strip(), " ".join(text.split(" ")[1:])
         m = PlayerModel(str(message.channel.id))
