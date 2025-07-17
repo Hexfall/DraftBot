@@ -1,7 +1,7 @@
 import asyncio
 import time
 from asyncio import TaskGroup
-from random import shuffle, seed
+from random import shuffle, seed, random
 from threading import Lock
 
 import discord
@@ -30,6 +30,18 @@ class DraftBot(discord.Client):
         
         if message.content.startswith(PREFIX):
             await self.parse_message(message, message.content[len(PREFIX):].strip())
+    
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
+        if reaction.message.author == self.user:
+            return
+        if reaction.message.guild is None:
+            return
+        
+        async for u in reaction.users():
+            if u == self.user:
+                if random() < 0.2:
+                    await reaction.message.channel.send(f"You think you're fucking funny {user.mention}? You think you can do my job better than me? Is that it maybe? \nNo?\nI didn't fucking think so. I run this fucking place and you're just some upstart turd. If you know what's fucking good for you, you'll leave me to my business and pray that I never notice you again. Know your fucking place.\nBitch ass punk.")
+                    break
 
     async def parse_message(self, message: discord.message.Message, command):
         try:
