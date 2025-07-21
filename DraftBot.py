@@ -243,6 +243,7 @@ class DraftBot(discord.Client):
                             picks[user] = os[int(pick.content) - 1]
                             pick_lock.release()
                             await pick.add_reaction("👍")
+                            print(f"Got pick from {u.display_name}")
 
                             break
                     else:
