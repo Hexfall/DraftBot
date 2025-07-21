@@ -116,7 +116,8 @@ class DraftBot(discord.Client):
         else:
             await message.channel.send(f"Failed to find user {user}. Please try again.")
             return
-            
+
+        await message.add_reaction("👍")
         await asyncio.sleep(duration)
         await message.channel.send(f"{user.mention} {remind_message}")
         
