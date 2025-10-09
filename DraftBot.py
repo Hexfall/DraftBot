@@ -1,4 +1,4 @@
-from email.policy import default
+from asyncio import Lock
 from random import shuffle
 from typing import Any
 
@@ -8,8 +8,8 @@ from discord import app_commands, Interaction, Guild
 from Models.ModelBase import InteractionChannel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
-from Views.OptionsView import OptionsView
 from Views.DraftView import DraftView
+from Views.OptionsView import OptionsView
 
 
 @app_commands.command(name="default_server_options", description="Changes the default options that are used in new threads/channels")
@@ -49,10 +49,38 @@ async def edit_bans(interaction: Interaction):
 @app_commands.command()
 async def draft(interaction: Interaction):
     async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
-        await interaction.response.send_message("\n".join([u.mention for u in snake_order(users, bans)[0]]))
+        await interaction.response.defer()
+        await ban_phase(interaction, users, bans)
+        await pick_phase(interaction, users, picks)
+        await choose_phase(interaction, users, options)
     v = DraftView(interaction.guild, interaction.channel)
     v.callback = callback
     await interaction.response.send_message("Draft", view=v, ephemeral=True)
+
+
+async def ban_phase(interaction: Interaction, users: list[discord.Member], bans: int):
+    ban_queue, order = snake_order(users, bans)
+    await interaction.followup.send("Beginning banning phase. Banning will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
+    lock = Lock()
+    for user in ban_queue:
+        async def callback(interaction: Interaction, option: str):
+            await interaction.message.delete()
+            await interaction.response.send_message(content=f"{interaction.user.mention} has banned {option}")
+            lock.release()
+        await lock.acquire()
+        ban_view = AddBanView(interaction.guild, interaction.channel, user)
+        ban_view.callback = callback
+        await interaction.followup.send(f"It is your turn to ban, {user.mention}", view=ban_view)
+    await lock.acquire()
+    lock.release()
+
+
+async def pick_phase(interation: Interaction, users: list[discord.Member], picks: int):
+    pass
+    
+
+async def choose_phase(interaction: Interaction, users: list[discord.Member], options: int):
+    pass
     
 
 def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
@@ -66,13 +94,6 @@ def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
             ret += l[::-1]
     return ret, l
 
-
-async def start_draft(guild: Guild, channel: InteractionChannel, users: list[discord.Member], bans: int, picks: int, options: int):
-    pass
-
-
-async def ban_phase(guild: Guild, channel: InteractionChannel, users: list[discord.Member], bans: int):
-    pass
 
 @app_commands.command()
 async def ban(interaction: Interaction):
