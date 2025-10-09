@@ -1,0 +1,1000 @@
+{
+  "main.py": [
+    {
+      "type": "FunctionDef",
+      "name": "main",
+      "md_content": [
+        "**main**: The function of main is to initialize and run the DraftBot instance for the application.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The main function serves as the entry point for the application. It begins by creating an instance of the DraftBot class, which is responsible for managing the Discord bot. The DraftBot is initialized with specific intents, which dictate the types of events the bot will listen to and respond to within the Discord environment. The intents are crucial for the bot's functionality, as they define the scope of interactions the bot can have with users and messages.\n\nAfter the DraftBot instance is created, the main function calls the `run` method on the bot instance, passing the result of the `get_token` function as an argument. The `get_token` function is designed to read and return the content of a token file, which is essential for authenticating the bot with the Discord API. This token is a critical piece of information that allows the bot to connect to Discord and operate within a server.\n\nThe successful execution of the main function is contingent upon the proper functioning of both the DraftBot class and the get_token function. If the token is invalid or the file containing it is inaccessible, the bot will fail to start, resulting in an error. Therefore, it is imperative that the token file is correctly specified and accessible.\n\n**Note**: Ensure that the intents used when initializing the DraftBot are enabled in the Discord Developer Portal. Additionally, the token file must exist and contain a valid token for the bot to function correctly."
+      ],
+      "code_start_line": 13,
+      "code_end_line": 15,
+      "params": [],
+      "have_return": false,
+      "code_content": "def main() -> None:\n    bot = DraftBot.DraftBot(intents=intents)\n    bot.run(get_token())\n",
+      "name_column": 4,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "main.py/get_token",
+        "DraftBot.py/DraftBot"
+      ],
+      "special_reference_type": [
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "get_token",
+      "md_content": [
+        "**get_token**: The function of get_token is to read and return the content of a token file as a string.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The get_token function is designed to read a file specified by the variable `token_path` and return its contents as a string. It opens the file in read mode and utilizes the `with` statement to ensure that the file is properly closed after its contents have been read. The `strip()` method is called on the read content to remove any leading or trailing whitespace, including newline characters. This function is crucial for obtaining the token needed for authentication or authorization purposes in the application.\n\nThe get_token function is called within the main function of the project, where it is used as an argument for the `bot.run()` method. This indicates that the token retrieved by get_token is essential for the bot's operation, likely serving as a means of authenticating the bot with a messaging platform or API. The successful execution of the main function depends on the proper functioning of get_token, as it provides the necessary credentials for the bot to run.\n\n**Note**: It is important to ensure that the `token_path` variable is correctly defined and points to a valid file containing the token. If the file does not exist or is inaccessible, the function will raise an error.\n\n**Output Example**: An example of the possible return value of the get_token function could be a string such as \"abc123xyz\", which represents the token read from the specified file."
+      ],
+      "code_start_line": 17,
+      "code_end_line": 19,
+      "params": [],
+      "have_return": true,
+      "code_content": "def get_token() -> str:\n    with open(token_path, 'r') as file:\n        return file.read().strip()\n",
+      "name_column": 4,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "main.py/main"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    }
+  ],
+  "DraftBot.py": [
+    {
+      "type": "ClassDef",
+      "name": "DraftBot",
+      "md_content": [
+        "**DraftBot**: The function of DraftBot is to manage a Discord bot that facilitates drafting processes within a server.\n\n**attributes**: The attributes of this Class.\n· intents: This parameter defines the events that the bot will listen to and respond to within Discord.\n\n**Code Description**: The DraftBot class extends the discord.Client class, allowing it to function as a Discord bot. Upon initialization, it sets up the bot with specified intents, which determine the types of events the bot can receive. The class includes several asynchronous methods that handle various events and commands.\n\nThe `on_ready` method is triggered when the bot successfully connects to Discord, printing the bot's username and ID to the console. The `on_message` method processes incoming messages, ignoring those sent by the bot itself and handling commands that start with a specified prefix. If a message is a direct message (DM), it logs that a DM was received.\n\nThe `on_reaction_add` method responds to reactions added to messages, sending a predefined message if certain conditions are met, such as the reaction being added by a user other than the bot itself.\n\nThe `parse_message` method interprets commands sent by users, attempting to call the appropriate method based on the command provided. If the command is invalid or an error occurs, it sends an error message back to the user.\n\nThe DraftBot class includes several command methods, such as `help`, `echo`, `ping`, `remind`, `players`, `pot`, `rules`, and `draft`. Each of these methods handles specific commands related to drafting players, managing options in a pot, setting rules for the draft, and sending reminders. For instance, the `players` method allows users to show, add, remove, or clear players from the draft, while the `pot` method manages options in the draft pot.\n\nThe `draft` method orchestrates the drafting process, ensuring that players can make their selections based on the rules defined in the `RulesModel`. It handles user input and manages the flow of the draft, including the possibility of mulligans.\n\nThe relationship with its caller, as seen in the main.py file, shows that the DraftBot is instantiated and run within the main function. This indicates that the bot is intended to be executed as part of the main application logic, allowing it to listen for events and respond accordingly within a Discord server.\n\n**Note**: When using this class, ensure that the necessary intents are enabled in the Discord Developer Portal for the bot to function correctly. Additionally, the bot must be invited to the server with appropriate permissions to interact with messages and users.\n\n**Output Example**: A possible output when a user sends a command like `!draft help` could be:\n```\n```\n!draft\n    ⊢ players\n        ⊢ show                          # Shows the current players on this server.\n        ⊢ add <player> [player]...      # Adds a player to the draft.\n        ⊢ remove <player> [player]...   # Removes a player from the draft.\n        ⊢ clear                         # Removes all players from the draft.\n    ⊢ pot\n        ⊢ draft                         # Begin a snakedraft with the current players.\n        ⊢ show                          # Shows the current options in the pot.\n        ⊢ add <option>                  # Adds a new option to the draft.\n        ⊢ remove <option>               # Removes an option from the draft.\n        ⊢ clear                         # Removes all options from the draft.\n    ⊢ rules\n        ⊢ allowmulligans <y|n>          # Changes whether or not to allow mulligans during draft.\n        ⊢ optionsperplayer <number>     # Changes the amount of options given to each players (and rounds in pot draft).\n        ⊢ publicdraft <y|n>             # Whether players' options are public, or only given in DMs.\n    ⊢ remind <@user> <duration[(h)|m]> <message>\n    ⊢ draft                             # Draft options to players.\n```"
+      ],
+      "code_start_line": 15,
+      "code_end_line": 321,
+      "params": [],
+      "have_return": true,
+      "code_content": "class DraftBot(discord.Client):\n    def __init__(self, intents: discord.Intents = discord.Intents.default()):\n        super().__init__(intents=intents)\n    \n    async def on_ready(self):\n        print('Logged in as: {0} {1}'.format(self.user.name, self.user.id))\n    \n    async def on_message(self, message: discord.message.Message):\n        if message.author == self.user:\n            return\n\n        if message.guild is None:\n            # This is a DM. Deal with later.\n            print(\"Got DM\")\n            return\n        \n        if message.content.startswith(PREFIX):\n            await self.parse_message(message, message.content[len(PREFIX):].strip())\n    \n    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):\n        if user == self.user:\n            return\n        if reaction.message.guild is None:\n            return\n        \n        async for u in reaction.users():\n            if u == self.user:\n                if random() < 0.1:\n                    await reaction.message.channel.send(f\"You think you're fucking funny {user.mention}? You think you can do my job better than me? Is that it maybe? \\nNo?\\nI didn't fucking think so. I run this fucking place and you're just some upstart turd. If you know what's fucking good for you, you'll leave me to my business and pray that I never notice you again. Know your fucking place.\\nBitch ass punk.\")\n                    break\n\n    async def parse_message(self, message: discord.message.Message, command):\n        try:\n            com, mantissa = command.split(\" \")[0], \" \".join(command.split(\" \")[1:])\n            await getattr(self, com.lower().strip())(message, mantissa)\n        except AttributeError as err:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            print(f\"Failed to parse message. {err}\")\n        except Exception as err:\n            print(f\"Failed to an unknown command. {err}\")\n    \n    async def help(self, message: discord.message.Message, command):\n        s = '''\n```\n!draft\n    ⊢ players\n        ⊢ show                          # Shows the current players on this server.\n        ⊢ add <player> [player]...      # Adds a player to the draft.\n        ⊢ remove <player> [player]...   # Removes a player from the draft.\n        ⊢ clear                         # Removes all players from the draft.\n    ⊢ pot\n        ⊢ draft                         # Begin a snakedraft with the current players.\n        ⊢ show                          # Shows the current options in the pot.\n        ⊢ add <option>                  # Adds a new option to the draft.\n        ⊢ remove <option>               # Removes an option from the draft.\n        ⊢ clear                         # Removes all options from the draft.\n    ⊢ rules\n        ⊢ allowmulligans <y|n>          # Changes whether or not to allow mulligans during draft.\n        ⊢ optionsperplayer <number>     # Changes the amount of options given to each players (and rounds in pot draft).\n        ⊢ publicdraft <y|n>             # Whether players' options are public, or only given in DMs.\n    ⊢ remind <@user> <duration[(h)|m]> <message>\n    ⊢ draft                             # Draft options to players.\n```'''\n        await message.channel.send(s)\n    \n    async def echo(self, message: discord.message.Message, text):\n        await message.channel.send(f\"{text}\")\n        \n    async def ping(self, message: discord.message.Message, text):\n        await message.channel.send(message.author.mention)\n        await message.channel.send(message.guild.name)\n        \n    async def remind(self, message: discord.message.Message, text):\n        try:\n            user, duration, remind_message = text.split(\" \", 2)\n        except:\n            await message.channel.send(\"Invalid syntax. Correct form is `!draft remind <@user> <duration[(h)|m]> <reminder message>`\")\n            return\n\n        if duration.isdigit():\n            duration = int(duration) * 60 * 60\n        else:\n            fails = True\n            \n            if not duration[:-1].isdigit():\n                pass\n            elif duration[-1] == \"h\":\n                duration = int(duration[:-1]) * 60 * 60\n                fails = False\n            elif duration[-1] == \"m\":\n                duration = int(duration[:-1]) * 60\n                fails = False\n            \n            if fails:\n                await message.channel.send(\"Failed to parse duration. Please try again.\")\n                return\n        \n        async for u in message.guild.fetch_members(limit=None):\n            if u.mention == user or u.display_name == user or u.name == user:\n                user = u\n                break\n        else:\n            await message.channel.send(f\"Failed to find user {user}. Please try again.\")\n            return\n\n        await message.add_reaction(\"👍\")\n        await asyncio.sleep(duration)\n        await message.channel.send(f\"{user.mention} {remind_message}\")\n        \n    async def players(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        m = PlayerModel(str(message.channel.id))\n        if com == \"show\":\n            await message.channel.send('\\n- '.join([f\"There are currently {len(m.data)} players in the draft:\"] + m.data))\n        elif com == \"add\":\n            for p in mantissa.split():\n                for u in message.guild.members:\n                    if u.mention == p.strip():\n                        if u.bot:\n                            await message.reply(f\"Bots cannot play games.\")\n                        else:\n                            break # User is on server and is not a bot. All good.\n                else:\n                    await message.reply(f\"{p} is not a user on this server.\")\n                    continue\n                m.add_player(p.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"remove\":\n            for p in mantissa.split():\n                m.rem_player(p.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"clear\":\n            m.clear_players()\n            await message.add_reaction(\"👍\")\n        elif com == \"random\":\n            seed(time.time())\n            p = m.data.copy()\n            shuffle(p)\n            await message.channel.send(\"\\n\".join([\"Here's your randomly ordered list of players:\"] + [f\"{i+1}. {u}\" for i, u in enumerate(p)]))\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.author.send(\"This is a dm\")\n    \n    async def pot(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        if com == \"show\":\n            m = PotModel(str(message.channel.id))\n            await message.channel.send('\\n- '.join([f\"There are currently {len(m.data)} options in the pot:\"] + m.data))\n        elif com == \"add\":\n            m = PotModel(str(message.channel.id))\n            m.add_pot(mantissa.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"remove\":\n            m = PotModel(str(message.channel.id))\n            m.rem_pot(mantissa.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"clear\":\n            m = PotModel(str(message.channel.id))\n            m.clear_pot()\n            await message.add_reaction(\"👍\")\n        elif com == \"draft\":\n            await self.draft_pot(message)\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n\n    async def rules(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        m = RulesModel(str(message.channel.id))\n        if com == \"allowmulligans\":\n            if mantissa.strip().lower() == \"y\":\n                m.set_mulligans(True)\n            elif mantissa.strip().lower() == \"n\":\n                m.set_mulligans(False)\n            else:\n                return await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.add_reaction(\"👍\")\n        elif com == \"optionsperplayer\":\n            try:\n                m.set_options(int(mantissa.strip()))\n            except ValueError:\n                return await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.add_reaction(\"👍\")\n        elif com == \"publicdraft\":\n            if mantissa.strip().lower() == \"y\":\n                m.set_public(True)\n            elif mantissa.strip().lower() == \"n\":\n                m.set_public(False)\n            await message.add_reaction(\"👍\")\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n    \n    async def draft(self, message: discord.message.Message, text):\n        print(f\"Initiating draft in {message.channel.name} on {message.guild.name}.\")\n        rm = RulesModel(str(message.channel.id))\n        pm = PlayerModel(str(message.channel.id))\n        om = PotModel(str(message.channel.id))\n        \n        if len(pm.data) * rm.data[\"options\"] > len(om.data):\n            return await message.channel.send(f\"Not enough options in pot to draft {rm.data['options']} options to each player. You need {len(pm.data) * rm.data[\"options\"]} options to draft for {len(pm.data)} players, but you only have {len(om.data)} options currently.\")\n        \n        pick_lock = Lock()\n        picks = dict(zip(pm.data, [\"Mulligan\"] * len(pm.data)))\n        round = 0\n        \n        while any([p == \"Mulligan\" for p in picks.values()]):\n            async def get_pick(user: str, options: list[str]) -> None:\n                try:\n                    print(\"entered func\")\n                    os = options.copy()\n                    if rm.data[\"mulligans\"]:\n                        os.append(\"Mulligan\")\n                    \n                    for u in message.guild.members:\n                        if u.mention == user:\n                            print(\"found user\")\n                            s = \"\\n- \".join([\"Your options are:\"] + [f\"{i+1}. {o}\" for i, o in enumerate(os)])\n                            s += \"\\nRespond with a message here or in the channel being used for the draft with the number of the option you'd like to pick.\"\n                            await u.send(s)\n                            \n                            def is_pick(m) -> bool:\n                                return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)\n                            \n                            try:\n                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24*4) # Four-day timeout\n                            except asyncio.TimeoutError:\n                                return await message.channel.send(f\"{u} failed to pick before the timeout.\")\n\n                            pick_lock.acquire()\n                            picks[user] = os[int(pick.content) - 1]\n                            pick_lock.release()\n                            await pick.add_reaction(\"👍\")\n                            print(f\"Got pick from {u.display_name}\")\n\n                            break\n                    else:\n                        print(\"failed to find user\")\n                except Exception as err:\n                    print(f\"Error in sub-group. {err}\")\n            \n            optlist = om.data.copy()\n            for p in picks.values():\n                if p in optlist:\n                    optlist.remove(p)\n            seed(time.time())\n            shuffle(optlist)\n            options = dict(zip(pm.data, [[optlist.pop() for _ in range(rm.data[\"options\"] - round)] for _ in range(len(pm.data))]))\n            \n            if (rm.data[\"options\"] - round) == 1:\n                for k, v in picks.items():\n                    if v == \"Mulligan\":\n                        picks[k] = options[k][0]\n                break\n            \n            if rm.data[\"public\"]:\n                await message.channel.send(\"\\n- \".join([\"Draft step ready: \"] + [(f\"{k}: {picks[k]}\" if picks[k] != \"Mulligan\" else f\"{k}:\\n  - {'\\n  - '.join(v)}\") for k, v in options.items()]))\n            \n            async with TaskGroup() as tg:\n                print(\"entered task group\")\n                for k, v in picks.items():\n                    if v != \"Mulligan\":\n                        continue\n                    print(\"Creating task for user\")\n                    try:\n                        tg.create_task(\n                            get_pick(k, options[k])\n                        )\n                    except Exception as err:\n                        print(f\"Error in sub-group. {err}\")\n            \n            round += 1\n        \n        await message.channel.send(\"\\n- \".join([\"Draft has been finalized:\"] + [f\"{k}: {v}\" for k, v in picks.items()]))\n        \n    async def draft_pot(self, message: discord.message.Message):\n        seed(time.time())\n        with PlayerModel(str(message.channel.id)) as pm:\n            p = pm.data.copy()\n        with PotModel(str(message.channel.id)) as om:\n            om.clear_pot()\n        shuffle(p)\n        await message.channel.send(\"\\n\".join([\"Picks will be added to the pot using snake draft with the following randomly ordered list of players:\"] + [f\"{i+1}. {u}\" for i, u in enumerate(p)]))\n        order = p.copy()\n        with RulesModel(str(message.channel.id)) as rm:\n            for i in range(rm.data[\"options\"] - 1):\n                if i % 2 == 0:\n                    order += p[::-1]\n                else:\n                    order += p\n        \n        while not len(order) == 0:\n            player = order.pop(0)\n            await message.channel.send(f\"It is your turn to pick {player}. Start your message with '?' to add your pick to the pot.\")\n\n            def is_pick(m) -> bool:\n                return m.author.mention == player and m.channel == message.channel and m.content.startswith(\"?\") and len(m.content) > 1\n\n            try:\n                pick: discord.message.Message = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24*4) # Four-day timeout\n            except asyncio.TimeoutError:\n                return await message.channel.send(f\"{player} failed to pick before the timeout. Terminating draft.\")\n            \n            with PotModel(str(message.channel.id)) as om:\n                om.add_pot(pick.content[1:])\n            await pick.add_reaction(\"👍\")\n\n        with PotModel(str(message.channel.id)) as om:\n            await message.channel.send('\\n- '.join([f\"Here are the finalized options in the pot:\"] + om.data))\n",
+      "name_column": 6,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "main.py/main"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__init__",
+      "md_content": [
+        "**__init__**: The function of __init__ is to initialize an instance of the class with specified Discord intents.\n\n**parameters**: The parameters of this Function.\n· intents: An instance of discord.Intents, which defines the events that the bot will receive. The default value is discord.Intents.default(), which initializes the intents to a standard set of permissions.\n\n**Code Description**: The __init__ function is a constructor that is called when an instance of the class is created. It takes one optional parameter, intents, which allows the user to specify the level of access the bot will have to various Discord events. By default, if no intents are provided, the function will use discord.Intents.default(), which sets the intents to a predefined set of permissions that are generally sufficient for basic bot functionality. The constructor then calls the superclass's __init__ method using super().__init__(intents=intents), passing the intents parameter to ensure that the parent class is properly initialized with the specified intents. This is crucial for the bot to function correctly within the Discord API, as it determines which events the bot can listen to and respond to.\n\n**Note**: It is important to ensure that the specified intents are enabled in the Discord Developer Portal for the bot to function as expected. If certain intents are not enabled, the bot may not receive the corresponding events, leading to incomplete functionality."
+      ],
+      "code_start_line": 16,
+      "code_end_line": 17,
+      "params": [
+        "self",
+        "intents"
+      ],
+      "have_return": false,
+      "code_content": "    def __init__(self, intents: discord.Intents = discord.Intents.default()):\n        super().__init__(intents=intents)\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "on_ready",
+      "md_content": [
+        "**on_ready**: The function of on_ready is to execute actions when the bot has successfully connected to the Discord server.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The on_ready function is an asynchronous method that is triggered when the bot has completed its initialization and is ready to start interacting with the Discord API. When this function is called, it prints a message to the console that includes the bot's username and user ID. The message is formatted using Python's string formatting method, where `{0}` is replaced by the bot's name (`self.user.name`) and `{1}` is replaced by the bot's ID (`self.user.id`). This provides a confirmation that the bot is logged in and ready to operate, which is crucial for debugging and monitoring the bot's status.\n\n**Note**: It is important to ensure that this function is properly awaited in the context of an asynchronous environment. Additionally, the print statement will output to the console, which may not be visible in all deployment environments; consider using logging for better visibility in production settings."
+      ],
+      "code_start_line": 19,
+      "code_end_line": 20,
+      "params": [
+        "self"
+      ],
+      "have_return": false,
+      "code_content": "    async def on_ready(self):\n        print('Logged in as: {0} {1}'.format(self.user.name, self.user.id))\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "on_message",
+      "md_content": [
+        "**on_message**: The function of on_message is to handle incoming messages in a Discord server and process commands if they start with a predefined prefix.\n\n**parameters**: The parameters of this Function.\n· parameter1: message - An instance of discord.message.Message representing the message received in the Discord server.\n\n**Code Description**: The on_message function is an asynchronous method that is triggered whenever a message is sent in a Discord server where the bot is present. The primary purpose of this function is to filter and process messages based on specific conditions.\n\nUpon receiving a message, the function first checks if the author of the message is the bot itself (self.user). If the message is authored by the bot, the function returns immediately to prevent self-replies, ensuring that the bot does not respond to its own messages.\n\nNext, the function checks if the message is a direct message (DM) by evaluating if message.guild is None. If the message is a DM, it logs \"Got DM\" to the console and returns without further action, indicating that DMs are not processed at this stage.\n\nIf the message content begins with a predefined prefix (PREFIX), the function proceeds to call the parse_message method. It extracts the command from the message content by removing the prefix and any leading or trailing whitespace. The parse_message function is responsible for interpreting the command and executing the corresponding command method defined within the DraftBot class.\n\nThe relationship between on_message and parse_message is crucial, as on_message serves as the entry point for handling messages, while parse_message is tasked with the actual command processing. This separation of concerns enhances code organization and readability.\n\n**Note**: It is important to ensure that the bot's command methods are properly defined within the DraftBot class to avoid errors during command execution. Additionally, the function is designed to handle only messages that start with the specified prefix, thereby filtering out irrelevant messages.\n\n**Output Example**: If a user sends a message \"!draft start\", the on_message function will recognize the prefix, extract the command \"draft start\", and pass it to the parse_message function for further processing. If the command is valid, the corresponding method will be invoked; otherwise, an error message will be sent to the channel."
+      ],
+      "code_start_line": 22,
+      "code_end_line": 32,
+      "params": [
+        "self",
+        "message"
+      ],
+      "have_return": true,
+      "code_content": "    async def on_message(self, message: discord.message.Message):\n        if message.author == self.user:\n            return\n\n        if message.guild is None:\n            # This is a DM. Deal with later.\n            print(\"Got DM\")\n            return\n        \n        if message.content.startswith(PREFIX):\n            await self.parse_message(message, message.content[len(PREFIX):].strip())\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "DraftBot.py/DraftBot/parse_message"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "on_reaction_add",
+      "md_content": [
+        "**on_reaction_add**: The function of on_reaction_add is to handle the event when a user adds a reaction to a message in a Discord channel.\n\n**parameters**: The parameters of this Function.\n· parameter1: reaction - An instance of discord.Reaction representing the reaction added to a message.\n· parameter2: user - An instance of discord.User representing the user who added the reaction.\n\n**Code Description**: The on_reaction_add function is an asynchronous event handler that is triggered when a user adds a reaction to a message. The function first checks if the user who added the reaction is the same as the bot's user; if so, it exits early to prevent the bot from responding to its own reactions. Next, it checks if the message to which the reaction was added is part of a guild (server); if not, the function exits again, as it only processes reactions in guild messages.\n\nIf the conditions are met, the function enters an asynchronous loop to iterate through the users who have reacted to the message. For each user, it checks if the user is the same as the bot's user. If a match is found, there is a 10% chance (determined by a random number generation) that the bot will send a specific message to the channel where the reaction occurred. This message is a humorous yet aggressive response directed at the user who added the reaction, implying that they are trying to undermine the bot's authority.\n\n**Note**: It is important to ensure that the bot has the necessary permissions to send messages in the channel where the reaction is added. Additionally, the random response mechanism introduces variability in the bot's behavior, which can enhance user engagement.\n\n**Output Example**: A possible appearance of the code's return value when the bot responds could be:\n\"You think you're fucking funny @username? You think you can do my job better than me? Is that it maybe? \nNo?\nI didn't fucking think so. I run this fucking place and you're just some upstart turd. If you know what's fucking good for you, you'll leave me to my business and pray that I never notice you again. Know your fucking place.\nBitch ass punk.\""
+      ],
+      "code_start_line": 34,
+      "code_end_line": 44,
+      "params": [
+        "self",
+        "reaction",
+        "user"
+      ],
+      "have_return": true,
+      "code_content": "    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):\n        if user == self.user:\n            return\n        if reaction.message.guild is None:\n            return\n        \n        async for u in reaction.users():\n            if u == self.user:\n                if random() < 0.1:\n                    await reaction.message.channel.send(f\"You think you're fucking funny {user.mention}? You think you can do my job better than me? Is that it maybe? \\nNo?\\nI didn't fucking think so. I run this fucking place and you're just some upstart turd. If you know what's fucking good for you, you'll leave me to my business and pray that I never notice you again. Know your fucking place.\\nBitch ass punk.\")\n                    break\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "parse_message",
+      "md_content": [
+        "**parse_message**: The function of parse_message is to process a command message and execute the corresponding command method.\n\n**parameters**: The parameters of this Function.\n· parameter1: message - An instance of discord.message.Message representing the message that contains the command to be parsed and executed.\n· parameter2: command - A string representing the command input by the user, which may include additional arguments.\n\n**Code Description**: The parse_message function is an asynchronous method designed to handle command messages received in a Discord server. It takes two parameters: a message object and a command string. The function begins by attempting to split the command string into two parts: the command itself (com) and any additional arguments (mantissa). The command is extracted by taking the first word of the command string, while the mantissa is constructed by joining the remaining words.\n\nOnce the command and mantissa are identified, the function dynamically calls the method corresponding to the command using Python's `getattr` function. The command is converted to lowercase and stripped of any leading or trailing whitespace to ensure that the method lookup is case-insensitive and does not fail due to formatting issues.\n\nIf the specified command method does not exist (resulting in an AttributeError), the function sends a message to the channel indicating that the syntax is invalid and suggests using the help command for assistance. Additionally, it logs the error to the console for debugging purposes. In the case of any other exceptions, a generic error message is logged, indicating that an unknown command has failed.\n\nThe parse_message function is called within the on_message method of the DraftBot class. The on_message method is triggered whenever a message is received in the Discord server. It first checks if the message author is the bot itself to prevent self-replies. If the message is a direct message (DM), it logs that a DM was received and returns without further action. If the message starts with a predefined prefix (PREFIX), it invokes the parse_message function, passing the message and the command extracted from the message content.\n\n**Note**: It is important to ensure that the command methods corresponding to user inputs are defined within the DraftBot class to avoid AttributeError exceptions. Additionally, proper error handling is implemented to provide feedback to users when they input invalid commands."
+      ],
+      "code_start_line": 46,
+      "code_end_line": 54,
+      "params": [
+        "self",
+        "message",
+        "command"
+      ],
+      "have_return": false,
+      "code_content": "    async def parse_message(self, message: discord.message.Message, command):\n        try:\n            com, mantissa = command.split(\" \")[0], \" \".join(command.split(\" \")[1:])\n            await getattr(self, com.lower().strip())(message, mantissa)\n        except AttributeError as err:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            print(f\"Failed to parse message. {err}\")\n        except Exception as err:\n            print(f\"Failed to an unknown command. {err}\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/on_message"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "help",
+      "md_content": [
+        "**help**: The function of help is to provide a detailed guide on the available commands and their usage within the draft bot.\n\n**parameters**: The parameters of this Function.\n· message: An instance of discord.message.Message that represents the message object from Discord, used to send the help information to the channel.\n· command: A command string that specifies which part of the help information is being requested (though it is not utilized in the current implementation).\n\n**Code Description**: The help function is an asynchronous method designed to send a formatted message containing a comprehensive list of commands available to users of the draft bot. When invoked, it constructs a multi-line string `s` that outlines various command categories, including \"players,\" \"pot,\" \"rules,\" and \"remind.\" Each category contains specific commands, along with brief descriptions of their functionality. The function then sends this string to the channel from which the message was received, allowing users to easily understand how to interact with the bot and utilize its features effectively.\n\nThe command categories and their respective commands are as follows:\n- **players**: Commands related to managing players in the draft, including showing current players, adding or removing players, and clearing the player list.\n- **pot**: Commands for managing draft options, including starting a draft, showing current options, adding or removing options, and clearing the options list.\n- **rules**: Commands for modifying draft rules, such as allowing mulligans, setting the number of options per player, and determining the visibility of players' options.\n- **remind**: A command for setting reminders for users.\n- **draft**: A command to initiate the drafting process for players.\n\n**Note**: It is important to ensure that the bot has the necessary permissions to send messages in the channel where the help command is invoked. Additionally, while the `command` parameter is included in the function signature, it is not currently used in the implementation, which may suggest future enhancements or variations of the help command."
+      ],
+      "code_start_line": 56,
+      "code_end_line": 78,
+      "params": [
+        "self",
+        "message",
+        "command"
+      ],
+      "have_return": false,
+      "code_content": "    async def help(self, message: discord.message.Message, command):\n        s = '''\n```\n!draft\n    ⊢ players\n        ⊢ show                          # Shows the current players on this server.\n        ⊢ add <player> [player]...      # Adds a player to the draft.\n        ⊢ remove <player> [player]...   # Removes a player from the draft.\n        ⊢ clear                         # Removes all players from the draft.\n    ⊢ pot\n        ⊢ draft                         # Begin a snakedraft with the current players.\n        ⊢ show                          # Shows the current options in the pot.\n        ⊢ add <option>                  # Adds a new option to the draft.\n        ⊢ remove <option>               # Removes an option from the draft.\n        ⊢ clear                         # Removes all options from the draft.\n    ⊢ rules\n        ⊢ allowmulligans <y|n>          # Changes whether or not to allow mulligans during draft.\n        ⊢ optionsperplayer <number>     # Changes the amount of options given to each players (and rounds in pot draft).\n        ⊢ publicdraft <y|n>             # Whether players' options are public, or only given in DMs.\n    ⊢ remind <@user> <duration[(h)|m]> <message>\n    ⊢ draft                             # Draft options to players.\n```'''\n        await message.channel.send(s)\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "echo",
+      "md_content": [
+        "**echo**: The function of echo is to send a specified text message to the channel where the original message was received.\n\n**parameters**: The parameters of this Function.\n· parameter1: message - This is an instance of discord.message.Message, representing the message object that triggered the function call. It contains information about the channel and the content of the message.\n· parameter2: text - This is a string that contains the text to be sent as a response in the channel.\n\n**Code Description**: The echo function is defined as an asynchronous method, which means it is designed to be non-blocking and can be awaited. When invoked, it takes two parameters: `message` and `text`. The `message` parameter is expected to be an instance of the discord.message.Message class, which provides context about the message that was received, including the channel it was sent in. The `text` parameter is a string that represents the content that will be sent back to the channel.\n\nInside the function, the method awaits the completion of sending a message to the channel associated with the original message. This is done using the `send` method on `message.channel`, which is a reference to the channel where the original message was posted. The formatted string `f\"{text}\"` is used to ensure that the text is sent as a message in the channel.\n\nThis function is particularly useful in bot development within the Discord API, allowing for easy echoing of messages or responses based on user input.\n\n**Note**: It is important to ensure that the bot has the necessary permissions to send messages in the channel where this function is called. Additionally, since this function is asynchronous, it should be called within an asynchronous context to avoid runtime errors."
+      ],
+      "code_start_line": 80,
+      "code_end_line": 81,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": false,
+      "code_content": "    async def echo(self, message: discord.message.Message, text):\n        await message.channel.send(f\"{text}\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "ping",
+      "md_content": [
+        "**ping**: The function of ping is to send a message mentioning the author and the name of the guild in a Discord channel.\n\n**parameters**: The parameters of this Function.\n· parameter1: message - An instance of discord.message.Message that represents the message received in the channel.\n· parameter2: text - A string that can be used to provide additional context or information, though it is not utilized in the current implementation.\n\n**Code Description**: The ping function is an asynchronous method designed to respond to a message in a Discord channel. When invoked, it takes two parameters: `message`, which is an object representing the original message sent by a user, and `text`, which is intended for future use but is not currently implemented in the function's logic. \n\nUpon execution, the function first sends a message to the channel where the original message was received. This message mentions the author of the original message by using `message.author.mention`, which formats the mention correctly for Discord. Following this, the function sends another message that contains the name of the guild (server) where the message was sent, accessed through `message.guild.name`. \n\nThis function is particularly useful for creating interactive bots that acknowledge user messages and provide context about the server, enhancing user engagement.\n\n**Note**: It is important to ensure that the bot has the necessary permissions to send messages in the channel where the command is invoked. Additionally, since this function is asynchronous, it should be awaited when called to ensure proper execution within an asynchronous context. The `text` parameter is currently unused, so developers may consider its purpose for future enhancements or remove it if unnecessary."
+      ],
+      "code_start_line": 83,
+      "code_end_line": 85,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": false,
+      "code_content": "    async def ping(self, message: discord.message.Message, text):\n        await message.channel.send(message.author.mention)\n        await message.channel.send(message.guild.name)\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "remind",
+      "md_content": [
+        "**remind**: The function of remind is to send a reminder message to a specified user after a defined duration.\n\n**parameters**: The parameters of this Function.\n· message: An instance of discord.message.Message representing the message that triggered the reminder command.\n· text: A string containing the command arguments, which includes the user mention, duration, and reminder message.\n\n**Code Description**: The remind function is an asynchronous method designed to facilitate the creation of reminders within a Discord server. It begins by attempting to parse the input text into three components: the user to be reminded, the duration until the reminder should be sent, and the actual reminder message. If the input does not conform to the expected format, an error message is sent to the channel indicating the correct syntax for the command.\n\nThe function then processes the duration input. If the duration is purely numeric, it is converted to seconds by multiplying by 3600 (the number of seconds in an hour). If the duration includes a suffix (either 'h' for hours or 'm' for minutes), the function checks the validity of the input and converts it accordingly. If the input is invalid, an error message is sent to the channel, and the function exits.\n\nNext, the function attempts to locate the specified user within the guild (server) by iterating through all members. It checks if the user mention, display name, or username matches the input. If the user is found, the function proceeds; if not, it sends an error message indicating that the user could not be found.\n\nUpon successfully identifying the user, the function adds a thumbs-up reaction to the original message to acknowledge the reminder request. It then pauses execution for the specified duration using asyncio.sleep. After the wait period, the function sends a message to the channel tagging the user and including the reminder message.\n\n**Note**: It is important to ensure that the command is used with the correct syntax to avoid errors. The user must be a member of the guild where the command is issued, and the duration must be specified in a valid format (either as a number of seconds, or with 'h' or 'm' suffixes). \n\n**Output Example**: \nIf a user issues the command `!draft remind @JohnDoe 10m Don't forget the meeting!`, after 10 minutes, the bot will send a message in the channel that reads: \n\"@JohnDoe Don't forget the meeting!\""
+      ],
+      "code_start_line": 87,
+      "code_end_line": 122,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": true,
+      "code_content": "    async def remind(self, message: discord.message.Message, text):\n        try:\n            user, duration, remind_message = text.split(\" \", 2)\n        except:\n            await message.channel.send(\"Invalid syntax. Correct form is `!draft remind <@user> <duration[(h)|m]> <reminder message>`\")\n            return\n\n        if duration.isdigit():\n            duration = int(duration) * 60 * 60\n        else:\n            fails = True\n            \n            if not duration[:-1].isdigit():\n                pass\n            elif duration[-1] == \"h\":\n                duration = int(duration[:-1]) * 60 * 60\n                fails = False\n            elif duration[-1] == \"m\":\n                duration = int(duration[:-1]) * 60\n                fails = False\n            \n            if fails:\n                await message.channel.send(\"Failed to parse duration. Please try again.\")\n                return\n        \n        async for u in message.guild.fetch_members(limit=None):\n            if u.mention == user or u.display_name == user or u.name == user:\n                user = u\n                break\n        else:\n            await message.channel.send(f\"Failed to find user {user}. Please try again.\")\n            return\n\n        await message.add_reaction(\"👍\")\n        await asyncio.sleep(duration)\n        await message.channel.send(f\"{user.mention} {remind_message}\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "players",
+      "md_content": [
+        "**players**: The function of players is to manage player-related commands within a draft system in a Discord bot context.\n\n**parameters**: The parameters of this Function.\n· message: An instance of discord.message.Message representing the message that triggered the command.\n· text: A string containing the command and any additional arguments provided by the user.\n\n**Code Description**: The players function is an asynchronous method designed to handle various commands related to player management in a draft system. It begins by parsing the input text to extract the command (com) and any additional arguments (mantissa). The command is converted to lowercase and stripped of leading or trailing whitespace for consistency.\n\nA PlayerModel instance (m) is created using the channel ID from the message, which allows the function to manage player data specific to that channel. The function then processes different commands based on the value of com:\n\n1. **show**: If the command is \"show\", the function sends a message to the channel displaying the current number of players in the draft and their names by accessing the data attribute of the PlayerModel instance.\n\n2. **add**: For the \"add\" command, the function iterates over the players mentioned in mantissa. It checks if each mentioned user is a member of the server and not a bot. If the user is valid, the add_player method of the PlayerModel instance is called to add the player to the draft. If the user is a bot or not found, an appropriate message is sent back to the user.\n\n3. **remove**: When the command is \"remove\", the function processes the players listed in mantissa and calls the rem_player method of the PlayerModel instance for each player to remove them from the draft.\n\n4. **clear**: The \"clear\" command invokes the clear_players method of the PlayerModel instance, which empties the player list. A reaction is added to the message to confirm the action.\n\n5. **random**: If the command is \"random\", the function shuffles the list of players and sends a randomly ordered list back to the channel.\n\nIf the command does not match any of the expected values, the function sends an error message indicating invalid syntax and offers help.\n\nThis function is integral to the DraftBot's player management capabilities, allowing users to dynamically interact with the player list through simple commands. The reliance on the PlayerModel class for data management ensures that player information is consistently updated and persisted.\n\n**Note**: It is important to ensure that the commands are issued correctly, as improper syntax may lead to error messages. Additionally, users should be aware that only valid server members can be added to the player list, and the bot will not accept bots as players."
+      ],
+      "code_start_line": 124,
+      "code_end_line": 156,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": false,
+      "code_content": "    async def players(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        m = PlayerModel(str(message.channel.id))\n        if com == \"show\":\n            await message.channel.send('\\n- '.join([f\"There are currently {len(m.data)} players in the draft:\"] + m.data))\n        elif com == \"add\":\n            for p in mantissa.split():\n                for u in message.guild.members:\n                    if u.mention == p.strip():\n                        if u.bot:\n                            await message.reply(f\"Bots cannot play games.\")\n                        else:\n                            break # User is on server and is not a bot. All good.\n                else:\n                    await message.reply(f\"{p} is not a user on this server.\")\n                    continue\n                m.add_player(p.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"remove\":\n            for p in mantissa.split():\n                m.rem_player(p.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"clear\":\n            m.clear_players()\n            await message.add_reaction(\"👍\")\n        elif com == \"random\":\n            seed(time.time())\n            p = m.data.copy()\n            shuffle(p)\n            await message.channel.send(\"\\n\".join([\"Here's your randomly ordered list of players:\"] + [f\"{i+1}. {u}\" for i, u in enumerate(p)]))\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.author.send(\"This is a dm\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "Models/PlayerModel.py/PlayerModel",
+        "Models/PlayerModel.py/PlayerModel/add_player",
+        "Models/PlayerModel.py/PlayerModel/rem_player",
+        "Models/PlayerModel.py/PlayerModel/clear_players"
+      ],
+      "special_reference_type": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "pot",
+      "md_content": [
+        "**pot**: The function of pot is to manage user commands related to a pot of options within a Discord channel, allowing users to show, add, remove, clear options, or initiate a draft process.\n\n**parameters**: The parameters of this Function.\n· message: discord.message.Message - The Discord message object that triggers the pot commands and provides context for the channel and user interactions.\n· text: str - The command text input by the user, which includes the specific action to be performed on the pot.\n\n**Code Description**: The pot function is an asynchronous method that processes user commands related to a pot of options in a Discord channel. It begins by parsing the input text to identify the command and any associated data. The command is extracted and converted to lowercase to ensure case-insensitivity, while the remaining text serves as the argument for the command.\n\nThe function supports several commands: \"show\", \"add\", \"remove\", \"clear\", and \"draft\". \n\n1. **show**: When the command is \"show\", the function creates an instance of PotModel using the channel ID from the message. It retrieves the current options in the pot and sends a message to the channel listing these options.\n\n2. **add**: If the command is \"add\", the function again initializes a PotModel instance and calls its add_pot method with the specified option. This method checks for duplicates and ensures that the option is valid before adding it to the pot. Upon successful addition, the function acknowledges the action by adding a thumbs-up reaction to the user's message.\n\n3. **remove**: For the \"remove\" command, the function creates a PotModel instance and invokes the rem_pot method to remove the specified option from the pot. Similar to the add command, it confirms the action with a thumbs-up reaction if the removal is successful.\n\n4. **clear**: When the command is \"clear\", the function initializes a PotModel instance and calls its clear_pot method, which empties the pot of all options. The function acknowledges this action with a thumbs-up reaction as well.\n\n5. **draft**: If the command is \"draft\", the pot function calls the draft_pot method, which manages the drafting process by allowing players to select from a randomized list of players and add their selections to the pot. This integration ensures that the pot reflects the current selections made during the draft.\n\nIf the command does not match any of the recognized actions, the function sends a message indicating invalid syntax and suggests using the help command for assistance.\n\nThe pot function is crucial for managing user interactions with the pot, ensuring that commands are processed correctly and that the state of the pot is maintained through the PotModel class. Each command directly interacts with the PotModel to manipulate the pot's contents, ensuring real-time updates based on user inputs.\n\n**Note**: It is important to ensure that the channel ID is correctly specified when creating instances of PotModel to avoid data management issues. Additionally, users should be aware of the command syntax to prevent errors and ensure smooth interaction with the bot."
+      ],
+      "code_start_line": 158,
+      "code_end_line": 178,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": false,
+      "code_content": "    async def pot(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        if com == \"show\":\n            m = PotModel(str(message.channel.id))\n            await message.channel.send('\\n- '.join([f\"There are currently {len(m.data)} options in the pot:\"] + m.data))\n        elif com == \"add\":\n            m = PotModel(str(message.channel.id))\n            m.add_pot(mantissa.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"remove\":\n            m = PotModel(str(message.channel.id))\n            m.rem_pot(mantissa.strip())\n            await message.add_reaction(\"👍\")\n        elif com == \"clear\":\n            m = PotModel(str(message.channel.id))\n            m.clear_pot()\n            await message.add_reaction(\"👍\")\n        elif com == \"draft\":\n            await self.draft_pot(message)\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "DraftBot.py/DraftBot/draft_pot",
+        "Models/PotModel.py/PotModel",
+        "Models/PotModel.py/PotModel/add_pot",
+        "Models/PotModel.py/PotModel/rem_pot",
+        "Models/PotModel.py/PotModel/clear_pot"
+      ],
+      "special_reference_type": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "rules",
+      "md_content": [
+        "**rules**: The function of rules is to manage and modify game rules based on user commands received through a Discord message.\n\n**parameters**: The parameters of this Function.\n· message: discord.message.Message - The Discord message object that contains the command and context of the interaction.\n· text: str - The command text input by the user, which includes the specific rule modification request.\n\n**Code Description**: The rules function is an asynchronous method designed to handle user commands related to game rules within a Discord channel. It begins by parsing the input text to extract the command and any additional parameters. The command is converted to lowercase and stripped of leading or trailing whitespace for consistency. The function then creates an instance of the RulesModel class, passing the unique identifier of the Discord channel as a string. This instance is used to manage the rules associated with that specific channel.\n\nThe function supports three primary commands: \"allowmulligans,\" \"optionsperplayer,\" and \"publicdraft.\" \n\n1. For the \"allowmulligans\" command, the function checks if the user input is \"y\" or \"n\" (yes or no). Based on this input, it calls the set_mulligans method of the RulesModel instance to enable or disable mulligans, respectively. If the input is invalid, an error message is sent to the channel, prompting the user to refer to the help command.\n\n2. The \"optionsperplayer\" command expects an integer value representing the number of options each player has. The function attempts to convert the mantissa (the part of the input following the command) into an integer and calls the set_options method of the RulesModel. If the conversion fails or the value is invalid (less than 1), an error message is sent to the user.\n\n3. The \"publicdraft\" command allows the user to set the visibility of the draft. Similar to the mulligans command, it checks for \"y\" or \"n\" to set the public status using the set_public method of the RulesModel. If the input is invalid, the function sends an error message.\n\nFor each successful modification of the rules, the function adds a thumbs-up reaction to the original message, providing feedback to the user that their command was processed successfully. If an unrecognized command is issued, the function responds with an error message directing the user to the help command.\n\nThe rules function is integral to the DraftBot's functionality, allowing users to dynamically adjust game settings based on their preferences. It interacts closely with the RulesModel class, which handles the underlying data management for game rules, ensuring that any changes made are persisted and can be retrieved in future sessions.\n\n**Note**: It is essential to ensure that the input text is correctly formatted and that the commands are recognized to avoid errors. Users should be informed about the expected syntax for each command to facilitate smooth interactions.\n\n**Output Example**: \n- If a user sends the command `!draft allowmulligans y`, the bot would respond with a thumbs-up reaction and update the rules to allow mulligans.\n- If a user sends the command `!draft optionsperplayer 5`, the bot would respond with a thumbs-up reaction and set the number of options per player to 5.\n- If a user sends an unrecognized command, the bot would respond with \"Invalid syntax. !draft help for help.\""
+      ],
+      "code_start_line": 180,
+      "code_end_line": 204,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": true,
+      "code_content": "    async def rules(self, message: discord.message.Message, text):\n        com, mantissa = text.split(\" \")[0].lower().strip(), \" \".join(text.split(\" \")[1:])\n        m = RulesModel(str(message.channel.id))\n        if com == \"allowmulligans\":\n            if mantissa.strip().lower() == \"y\":\n                m.set_mulligans(True)\n            elif mantissa.strip().lower() == \"n\":\n                m.set_mulligans(False)\n            else:\n                return await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.add_reaction(\"👍\")\n        elif com == \"optionsperplayer\":\n            try:\n                m.set_options(int(mantissa.strip()))\n            except ValueError:\n                return await message.channel.send(\"Invalid syntax. !draft help for help.\")\n            await message.add_reaction(\"👍\")\n        elif com == \"publicdraft\":\n            if mantissa.strip().lower() == \"y\":\n                m.set_public(True)\n            elif mantissa.strip().lower() == \"n\":\n                m.set_public(False)\n            await message.add_reaction(\"👍\")\n        else:\n            await message.channel.send(\"Invalid syntax. !draft help for help.\")\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "Models/RulesModel.py/RulesModel",
+        "Models/RulesModel.py/RulesModel/set_mulligans",
+        "Models/RulesModel.py/RulesModel/set_options",
+        "Models/RulesModel.py/RulesModel/set_public"
+      ],
+      "special_reference_type": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "draft",
+      "md_content": [
+        "**draft**: The function of draft is to facilitate a drafting process among players in a Discord channel, ensuring that each player selects options from a predefined pot while adhering to specific game rules.\n\n**parameters**: The parameters of this Function.\n· message: A discord.message.Message object representing the message that initiated the draft process.\n· text: A string containing any additional text or commands related to the draft.\n\n**Code Description**: The draft function is an asynchronous method designed to manage the drafting process within a Discord server. It begins by logging the initiation of the draft in the specified channel and guild. The function then creates instances of three models: RulesModel, PlayerModel, and PotModel, each initialized with the channel ID to manage rules, players, and pot options specific to that channel.\n\nThe function first checks if there are enough options in the pot to accommodate the number of players and the options per player as defined in the rules. If there are insufficient options, it sends a message to the channel indicating the shortfall and exits the function.\n\nA lock is established to manage concurrent access to the picks dictionary, which tracks each player's selection. The draft proceeds in rounds, where players are prompted to make their picks until all players have made their selections or have chosen to mulligan.\n\nWithin each round, the function defines a nested asynchronous function, get_pick, which handles the selection process for each player. This function sends a private message to the player with their available options and waits for their response. If a player fails to respond within a specified timeout period, a message is sent to the channel indicating their failure to pick.\n\nThe options available for selection are shuffled to ensure randomness, and the draft process continues until all players have made their selections or have opted for a mulligan. If the draft is public, the current state of picks and options is shared in the channel after each round.\n\nOnce all selections are finalized, the function sends a summary message to the channel, detailing the final picks of each player. This function is integral to the DraftBot's operation, relying on the PlayerModel to manage player data, the PotModel to handle available options, and the RulesModel to enforce the drafting rules.\n\n**Note**: It is essential to ensure that the channel ID is correctly specified when initializing the models to avoid issues with data management. Additionally, players should be informed about the timeout for their selections to ensure a smooth drafting experience.\n\n**Output Example**: A possible appearance of the code's return value could be:\n```\nDraft has been finalized:\n- Player1: OptionA\n- Player2: OptionB\n- Player3: Mulligan\n```"
+      ],
+      "code_start_line": 206,
+      "code_end_line": 286,
+      "params": [
+        "self",
+        "message",
+        "text"
+      ],
+      "have_return": true,
+      "code_content": "    async def draft(self, message: discord.message.Message, text):\n        print(f\"Initiating draft in {message.channel.name} on {message.guild.name}.\")\n        rm = RulesModel(str(message.channel.id))\n        pm = PlayerModel(str(message.channel.id))\n        om = PotModel(str(message.channel.id))\n        \n        if len(pm.data) * rm.data[\"options\"] > len(om.data):\n            return await message.channel.send(f\"Not enough options in pot to draft {rm.data['options']} options to each player. You need {len(pm.data) * rm.data[\"options\"]} options to draft for {len(pm.data)} players, but you only have {len(om.data)} options currently.\")\n        \n        pick_lock = Lock()\n        picks = dict(zip(pm.data, [\"Mulligan\"] * len(pm.data)))\n        round = 0\n        \n        while any([p == \"Mulligan\" for p in picks.values()]):\n            async def get_pick(user: str, options: list[str]) -> None:\n                try:\n                    print(\"entered func\")\n                    os = options.copy()\n                    if rm.data[\"mulligans\"]:\n                        os.append(\"Mulligan\")\n                    \n                    for u in message.guild.members:\n                        if u.mention == user:\n                            print(\"found user\")\n                            s = \"\\n- \".join([\"Your options are:\"] + [f\"{i+1}. {o}\" for i, o in enumerate(os)])\n                            s += \"\\nRespond with a message here or in the channel being used for the draft with the number of the option you'd like to pick.\"\n                            await u.send(s)\n                            \n                            def is_pick(m) -> bool:\n                                return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)\n                            \n                            try:\n                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24*4) # Four-day timeout\n                            except asyncio.TimeoutError:\n                                return await message.channel.send(f\"{u} failed to pick before the timeout.\")\n\n                            pick_lock.acquire()\n                            picks[user] = os[int(pick.content) - 1]\n                            pick_lock.release()\n                            await pick.add_reaction(\"👍\")\n                            print(f\"Got pick from {u.display_name}\")\n\n                            break\n                    else:\n                        print(\"failed to find user\")\n                except Exception as err:\n                    print(f\"Error in sub-group. {err}\")\n            \n            optlist = om.data.copy()\n            for p in picks.values():\n                if p in optlist:\n                    optlist.remove(p)\n            seed(time.time())\n            shuffle(optlist)\n            options = dict(zip(pm.data, [[optlist.pop() for _ in range(rm.data[\"options\"] - round)] for _ in range(len(pm.data))]))\n            \n            if (rm.data[\"options\"] - round) == 1:\n                for k, v in picks.items():\n                    if v == \"Mulligan\":\n                        picks[k] = options[k][0]\n                break\n            \n            if rm.data[\"public\"]:\n                await message.channel.send(\"\\n- \".join([\"Draft step ready: \"] + [(f\"{k}: {picks[k]}\" if picks[k] != \"Mulligan\" else f\"{k}:\\n  - {'\\n  - '.join(v)}\") for k, v in options.items()]))\n            \n            async with TaskGroup() as tg:\n                print(\"entered task group\")\n                for k, v in picks.items():\n                    if v != \"Mulligan\":\n                        continue\n                    print(\"Creating task for user\")\n                    try:\n                        tg.create_task(\n                            get_pick(k, options[k])\n                        )\n                    except Exception as err:\n                        print(f\"Error in sub-group. {err}\")\n            \n            round += 1\n        \n        await message.channel.send(\"\\n- \".join([\"Draft has been finalized:\"] + [f\"{k}: {v}\" for k, v in picks.items()]))\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "Models/PlayerModel.py/PlayerModel",
+        "Models/PotModel.py/PotModel",
+        "Models/RulesModel.py/RulesModel"
+      ],
+      "special_reference_type": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "get_pick",
+      "md_content": [
+        "**get_pick**: The function of get_pick is to facilitate a user in selecting an option from a provided list within a specified timeframe.\n\n**parameters**: The parameters of this Function.\n· parameter1: user - A string representing the mention of the user who is making a selection.\n· parameter2: options - A list of strings containing the available options for the user to choose from.\n\n**Code Description**: The get_pick function is an asynchronous function designed to manage the selection process for a user in a draft scenario. It begins by printing a message indicating that the function has been entered. The function then creates a copy of the options list and appends \"Mulligan\" if the current game state allows for mulligans, as indicated by the rm.data[\"mulligans\"] condition.\n\nThe function iterates through the members of the guild associated with the message, searching for the user specified by the 'user' parameter. Upon finding the user, it constructs a message listing the available options, formatted with their respective indices, and sends this message directly to the user via a private message.\n\nTo handle the user's response, a nested function named is_pick is defined. This function checks if the incoming message is from the correct user, is sent in the appropriate channel, contains a digit, and falls within the valid range of options. The get_pick function then waits for the user's response using the wait_for method, with a timeout set to four days.\n\nIf the user fails to respond within the allotted time, a timeout message is sent to the channel. If a valid response is received, the function acquires a lock to safely update the picks dictionary with the user's selection, adds a thumbs-up reaction to the user's message, and prints a confirmation of the selection. If the user is not found, a message indicating failure to locate the user is printed. The function is wrapped in a try-except block to catch and log any exceptions that may occur during its execution.\n\n**Note**: It is important to ensure that the user is correctly mentioned and that the options provided are valid. The function relies on the proper setup of the guild and message context to operate effectively. Additionally, the use of locks is crucial to prevent race conditions when updating shared resources.\n\n**Output Example**: A possible appearance of the code's return value could be a direct message sent to the user that reads:\n\"Your options are:\n1. Option A\n2. Option B\n3. Option C\nRespond with a message here or in the channel being used for the draft with the number of the option you'd like to pick.\""
+      ],
+      "code_start_line": 220,
+      "code_end_line": 252,
+      "params": [
+        "user",
+        "options"
+      ],
+      "have_return": true,
+      "code_content": "            async def get_pick(user: str, options: list[str]) -> None:\n                try:\n                    print(\"entered func\")\n                    os = options.copy()\n                    if rm.data[\"mulligans\"]:\n                        os.append(\"Mulligan\")\n                    \n                    for u in message.guild.members:\n                        if u.mention == user:\n                            print(\"found user\")\n                            s = \"\\n- \".join([\"Your options are:\"] + [f\"{i+1}. {o}\" for i, o in enumerate(os)])\n                            s += \"\\nRespond with a message here or in the channel being used for the draft with the number of the option you'd like to pick.\"\n                            await u.send(s)\n                            \n                            def is_pick(m) -> bool:\n                                return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)\n                            \n                            try:\n                                pick = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24*4) # Four-day timeout\n                            except asyncio.TimeoutError:\n                                return await message.channel.send(f\"{u} failed to pick before the timeout.\")\n\n                            pick_lock.acquire()\n                            picks[user] = os[int(pick.content) - 1]\n                            pick_lock.release()\n                            await pick.add_reaction(\"👍\")\n                            print(f\"Got pick from {u.display_name}\")\n\n                            break\n                    else:\n                        print(\"failed to find user\")\n                except Exception as err:\n                    print(f\"Error in sub-group. {err}\")\n",
+      "name_column": 22,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "is_pick",
+      "md_content": [
+        "**is_pick**: The function of is_pick is to determine if a given message is a valid pick based on specific criteria.\n\n**parameters**: The parameters of this Function.\n· m: The message object that is being evaluated for validity as a pick.\n\n**Code Description**: The is_pick function takes a message object (m) as its parameter and evaluates whether this message qualifies as a valid pick. The function checks several conditions to ensure the message meets the required criteria. \n\n1. It first verifies that the author of the message (m.author) is the same as a predefined user (u). This ensures that only the intended user can make a pick.\n2. Next, it checks if the message was sent in the same channel as the original message (m.channel == message.channel) or if the message was sent in a guild that is not specified (m.guild is None). This condition allows picks to be made only in the appropriate context, either in the same channel or in a non-guild context.\n3. The function then confirms that the content of the message is a digit (m.content.isdigit()). This is crucial because the expected input for a pick is a numeric value.\n4. Finally, it checks that the numeric value represented by the message content is greater than zero and less than or equal to the length of a predefined list (os). This ensures that the pick is within a valid range.\n\nIf all these conditions are met, the function returns True, indicating that the message is a valid pick; otherwise, it returns False.\n\n**Note**: It is important to ensure that the variable 'u' is defined and represents the correct user, and that 'message.channel' and 'os' are properly initialized in the context where this function is used.\n\n**Output Example**: If the message object m represents a message from the user 'u' in the correct channel with content '3', and if 'os' has a length of 5, the function will return True. Conversely, if the message content is '6', it will return False since it exceeds the length of 'os'."
+      ],
+      "code_start_line": 234,
+      "code_end_line": 235,
+      "params": [
+        "m"
+      ],
+      "have_return": true,
+      "code_content": "                            def is_pick(m) -> bool:\n                                return m.author == u and (m.channel == message.channel or m.guild is None) and m.content.isdigit() and 0 < int(m.content) <= len(os)\n",
+      "name_column": 32,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "draft_pot",
+      "md_content": [
+        "**draft_pot**: The function of draft_pot is to manage the drafting process by allowing players to pick from a randomly ordered list of players and add their selections to a pot.\n\n**parameters**: The parameters of this Function.\n· message: discord.message.Message - The Discord message object that triggers the draft process and provides context for the channel and user interactions.\n\n**Code Description**: The draft_pot function is an asynchronous method designed to facilitate a snake draft process within a Discord channel. Upon invocation, it begins by seeding the random number generator with the current time to ensure a unique order of player selection. The function retrieves the list of players associated with the specific channel using the PlayerModel, which manages player data for the draft.\n\nInitially, the function creates an instance of PlayerModel using the channel ID from the message. It then copies the player data into a local variable. Subsequently, it initializes a PotModel instance to clear any existing pot entries, ensuring a fresh start for the draft. The player list is shuffled to randomize the order in which players will be selected.\n\nThe function sends a message to the channel, informing users of the randomized player list. It then constructs the order of picks based on the number of options specified in the RulesModel, which governs the drafting rules for the guild. The order alternates between the original and reversed player lists, creating a snake draft effect.\n\nThe core of the function involves a loop that continues until all players have made their selections. For each player, the function sends a message indicating that it is their turn to pick. It defines a check function, is_pick, to validate incoming messages, ensuring that only the designated player can make a selection and that their message starts with a specific character (in this case, \"?\"). \n\nIf a player fails to make a selection within a four-day timeout, the function sends a notification indicating that the draft has terminated due to inactivity. Upon receiving a valid pick, the function adds the selected player to the pot using the PotModel's add_pot method and acknowledges the selection with a thumbs-up reaction.\n\nFinally, once all players have made their picks, the function retrieves the finalized pot data and sends a message to the channel displaying the selected options.\n\nThe draft_pot function is called within the pot method of the DraftBot class when a user issues a \"draft\" command. This integration allows for seamless interaction between the pot management and the drafting process, ensuring that the pot reflects the current selections made by players during the draft.\n\n**Note**: It is essential to ensure that the channel ID is correctly specified when initializing the PlayerModel and PotModel to avoid data management issues. Additionally, users should be aware of the timeout period for selections to prevent premature termination of the draft.\n\n**Output Example**: A possible appearance of the code's return value could be:\n```\nPicks will be added to the pot using snake draft with the following randomly ordered list of players:\n1. PlayerA\n2. PlayerB\n3. PlayerC\n...\nIt is your turn to pick PlayerA. Start your message with '?' to add your pick to the pot.\nHere are the finalized options in the pot:\n- PlayerA\n- PlayerC\n- PlayerB\n```"
+      ],
+      "code_start_line": 288,
+      "code_end_line": 321,
+      "params": [
+        "self",
+        "message"
+      ],
+      "have_return": true,
+      "code_content": "    async def draft_pot(self, message: discord.message.Message):\n        seed(time.time())\n        with PlayerModel(str(message.channel.id)) as pm:\n            p = pm.data.copy()\n        with PotModel(str(message.channel.id)) as om:\n            om.clear_pot()\n        shuffle(p)\n        await message.channel.send(\"\\n\".join([\"Picks will be added to the pot using snake draft with the following randomly ordered list of players:\"] + [f\"{i+1}. {u}\" for i, u in enumerate(p)]))\n        order = p.copy()\n        with RulesModel(str(message.channel.id)) as rm:\n            for i in range(rm.data[\"options\"] - 1):\n                if i % 2 == 0:\n                    order += p[::-1]\n                else:\n                    order += p\n        \n        while not len(order) == 0:\n            player = order.pop(0)\n            await message.channel.send(f\"It is your turn to pick {player}. Start your message with '?' to add your pick to the pot.\")\n\n            def is_pick(m) -> bool:\n                return m.author.mention == player and m.channel == message.channel and m.content.startswith(\"?\") and len(m.content) > 1\n\n            try:\n                pick: discord.message.Message = await self.wait_for('message', check=is_pick, timeout=60.0*60.0*24*4) # Four-day timeout\n            except asyncio.TimeoutError:\n                return await message.channel.send(f\"{player} failed to pick before the timeout. Terminating draft.\")\n            \n            with PotModel(str(message.channel.id)) as om:\n                om.add_pot(pick.content[1:])\n            await pick.add_reaction(\"👍\")\n\n        with PotModel(str(message.channel.id)) as om:\n            await message.channel.send('\\n- '.join([f\"Here are the finalized options in the pot:\"] + om.data))\n",
+      "name_column": 14,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/pot"
+      ],
+      "reference_who": [
+        "Models/PlayerModel.py/PlayerModel",
+        "Models/PotModel.py/PotModel",
+        "Models/PotModel.py/PotModel/add_pot",
+        "Models/PotModel.py/PotModel/clear_pot",
+        "Models/RulesModel.py/RulesModel"
+      ],
+      "special_reference_type": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "is_pick",
+      "md_content": [
+        "**is_pick**: The function of is_pick is to determine if a message is a valid pick made by a player in a specific channel.\n\n**parameters**: The parameters of this Function.\n· parameter1: m - This parameter represents the message object that is being evaluated.\n\n**Code Description**: The is_pick function evaluates a message object (m) to check if it meets specific criteria indicating that it is a valid pick. The function performs the following checks:\n1. It verifies that the author of the message (m.author.mention) is the same as the designated player variable. This ensures that only the intended player can make a pick.\n2. It checks if the message was sent in the same channel as a predefined message (message.channel). This ensures that the context of the pick is correct and that it is being made in the appropriate channel.\n3. The function confirms that the content of the message starts with a question mark (\"?\"). This is likely a requirement for formatting the pick command.\n4. Finally, it ensures that the length of the message content is greater than one character. This prevents empty or invalid commands from being processed.\n\nIf all these conditions are met, the function returns True, indicating that the message is a valid pick. If any of the conditions fail, it returns False.\n\n**Note**: It is important to ensure that the player variable and message.channel are correctly defined in the scope where this function is used. Additionally, the function assumes that the message object has the necessary attributes (author, channel, and content) available for evaluation.\n\n**Output Example**: If the player variable is set to a specific user mention and the message object represents a message that meets all the criteria, the function will return True. For instance, if the player is mentioned as \"@Player\" and the message content is \"?pick 1\", the function will return True. Conversely, if the message content is \"pick 1\" (without the \"?\"), the function will return False."
+      ],
+      "code_start_line": 308,
+      "code_end_line": 309,
+      "params": [
+        "m"
+      ],
+      "have_return": true,
+      "code_content": "            def is_pick(m) -> bool:\n                return m.author.mention == player and m.channel == message.channel and m.content.startswith(\"?\") and len(m.content) > 1\n",
+      "name_column": 16,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    }
+  ],
+  "Models/ModelBase.py": [
+    {
+      "type": "ClassDef",
+      "name": "ModelBase",
+      "md_content": [
+        "**ModelBase**: The function of ModelBase is to provide a base class for managing data associated with a specific guild, including loading and saving data to a JSON file.\n\n**attributes**: The attributes of this Class.\n· guild: A string representing the guild name associated with the data.\n· path: A path object representing the directory where the guild's data is stored.\n· file_path: A path object representing the specific JSON file for storing the data.\n· data: A list that holds the data loaded from the JSON file.\n\n**Code Description**: The ModelBase class serves as a foundational component for other models within the project, specifically designed to handle data persistence for different entities related to a guild. Upon initialization, the class takes two parameters: `guild`, which specifies the name of the guild, and `file_name`, which determines the name of the JSON file used for data storage. The constructor creates a directory for the guild if it does not already exist and initializes an empty list to hold the data.\n\nThe class includes a private method `_load_data`, which attempts to read data from the specified JSON file. If the file exists, it loads the data into the `data` attribute. Conversely, the `_save_data` method is responsible for writing the current state of the `data` attribute back to the JSON file in a formatted manner.\n\nThe class also implements context management methods `__enter__` and `__exit__`, allowing it to be used in a `with` statement. This ensures that data is saved automatically when the context is exited, providing a convenient way to manage data without requiring explicit save calls.\n\nThe ModelBase class is inherited by other models in the project, such as PlayerModel, PotModel, and RulesModel. Each of these subclasses utilizes the functionality provided by ModelBase to manage their specific data types while benefiting from the data loading and saving mechanisms. For instance, PlayerModel uses ModelBase to manage a list of players, PotModel manages a collection of pot elements, and RulesModel handles game rules. This inheritance structure promotes code reuse and consistency across different data models.\n\n**Note**: When using the ModelBase class, ensure that the guild name and file name are correctly specified to avoid issues with file paths and data loading. The context management feature should be utilized to ensure data is saved properly.\n\n**Output Example**: An example of the data structure that might be loaded into the `data` attribute could be:\n```json\n[\n    \"Player1\",\n    \"Player2\",\n    \"Player3\"\n]\n```"
+      ],
+      "code_start_line": 6,
+      "code_end_line": 30,
+      "params": [],
+      "have_return": true,
+      "code_content": "class ModelBase:\n    def __init__(self, guild: str, file_name: str) -> None:\n        self.guild = guild\n        self.path = data_path.joinpath(self.guild)\n        self.file_path = self.path.joinpath(file_name + \".json\")\n        if not self.path.exists():\n            self.path.mkdir(parents=True)\n        self.data = []\n        self._load_data()\n\n    def _load_data(self):\n        if not self.file_path.is_file():\n            return\n        with open(self.file_path, \"r\") as f:\n            self.data = json.load(f)\n\n    def _save_data(self):\n        with open(self.file_path, \"w\") as f:\n            f.write(json.dumps(self.data, indent=4))\n    \n    def __enter__(self):\n        return self\n    \n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self._save_data()",
+      "name_column": 6,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "Models/PlayerModel.py",
+        "Models/PlayerModel.py/PlayerModel",
+        "Models/PotModel.py",
+        "Models/PotModel.py/PotModel",
+        "Models/RulesModel.py",
+        "Models/RulesModel.py/RulesModel"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__init__",
+      "md_content": [
+        "**__init__**: The function of __init__ is to initialize an instance of the class by setting up the guild, file path, and loading existing data from a JSON file.\n\n**parameters**: The parameters of this Function.\n· guild: A string representing the name of the guild associated with the instance.\n· file_name: A string representing the name of the JSON file from which data will be loaded.\n\n**Code Description**: The __init__ method is the constructor for the class, responsible for initializing the object's attributes and preparing the instance for use. When an instance of the class is created, the method takes two parameters: guild and file_name. The guild parameter is stored in the instance variable self.guild, while the file_name is used to construct the file path for the JSON data file.\n\nThe method constructs a directory path using the guild name and assigns it to self.path. It then creates a full file path for the JSON file by appending \".json\" to the file_name and storing it in self.file_path. The method checks if the directory specified by self.path exists; if it does not, it creates the directory using the mkdir method with the parents=True argument, which allows for the creation of any necessary parent directories.\n\nNext, the method initializes an empty list for the instance variable self.data, which will hold the data loaded from the JSON file. The _load_data method is then called to populate the self.data attribute with any existing data from the specified JSON file. This ensures that when an instance of the class is created, it is immediately ready to work with any pre-existing data, if available.\n\nThe relationship with the _load_data method is crucial, as it is responsible for loading the data from the JSON file into the self.data attribute. This method is called during the initialization process, ensuring that the object is set up with the most current data available.\n\n**Note**: It is important to ensure that the file specified by file_path is a valid JSON file, as any issues with the file format may lead to errors during the loading process. Additionally, if the file does not exist, the method will not raise an error but will simply leave the data attribute as an empty list, allowing for a smooth initialization experience without interruptions."
+      ],
+      "code_start_line": 7,
+      "code_end_line": 14,
+      "params": [
+        "self",
+        "guild",
+        "file_name"
+      ],
+      "have_return": false,
+      "code_content": "    def __init__(self, guild: str, file_name: str) -> None:\n        self.guild = guild\n        self.path = data_path.joinpath(self.guild)\n        self.file_path = self.path.joinpath(file_name + \".json\")\n        if not self.path.exists():\n            self.path.mkdir(parents=True)\n        self.data = []\n        self._load_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_load_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "_load_data",
+      "md_content": [
+        "**_load_data**: The function of _load_data is to load data from a specified JSON file into the object's data attribute.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The _load_data function is responsible for checking if a file exists at the path specified by the file_path attribute of the object. If the file does not exist, the function simply returns without performing any further actions. If the file does exist, the function opens the file in read mode and loads its contents as JSON data into the data attribute of the object. This function is called during the initialization of the object, specifically within the __init__ method of the class. When an instance of the class is created, the __init__ method sets up the guild and file path, ensuring that the necessary directory exists. It then calls _load_data to populate the data attribute with any existing data from the specified JSON file. This ensures that the object is initialized with the most current data available, if it exists.\n\n**Note**: It is important to ensure that the file specified by file_path is a valid JSON file, as any issues with the file format may lead to errors during the loading process. Additionally, if the file does not exist, the function will not raise an error but will simply leave the data attribute as an empty list.\n\n**Output Example**: If the JSON file at the specified path contains the following data:\n```json\n[\n    {\"id\": 1, \"name\": \"Item 1\"},\n    {\"id\": 2, \"name\": \"Item 2\"}\n]\n```\nAfter calling _load_data, the data attribute of the object would be populated as:\n```python\nself.data = [\n    {\"id\": 1, \"name\": \"Item 1\"},\n    {\"id\": 2, \"name\": \"Item 2\"}\n]\n```"
+      ],
+      "code_start_line": 16,
+      "code_end_line": 20,
+      "params": [
+        "self"
+      ],
+      "have_return": true,
+      "code_content": "    def _load_data(self):\n        if not self.file_path.is_file():\n            return\n        with open(self.file_path, \"r\") as f:\n            self.data = json.load(f)\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "Models/ModelBase.py/ModelBase/__init__"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "_save_data",
+      "md_content": [
+        "**_save_data**: The function of _save_data is to save the current state of the data to a specified file in JSON format.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The _save_data function is responsible for serializing the current data stored in the object to a file specified by the file_path attribute. It opens the file in write mode and uses the json.dumps method to convert the data into a JSON formatted string with an indentation of 4 spaces for better readability. This function is crucial for persisting the state of the data, ensuring that any changes made to the data can be saved and retrieved later.\n\nThe _save_data function is called in several other methods throughout the project, indicating its importance in maintaining data integrity. For instance, in the __exit__ method of the ModelBase class, _save_data is invoked to ensure that any data modifications are saved when exiting a context. Similarly, in the PlayerModel class, methods such as add_player, rem_player, and clear_players call _save_data after modifying the player data, ensuring that the player list is consistently updated in the file. The PotModel class also utilizes _save_data in its add_pot, rem_pot, and clear_pot methods, reflecting the same need for data persistence. Furthermore, in the RulesModel class, methods like set_mulligans, set_options, and set_public utilize _save_data to save changes to the rules configuration.\n\nOverall, the _save_data function serves as a central mechanism for data persistence across various models in the project, ensuring that any updates made to the data are reliably saved to the designated file.\n\n**Note**: It is important to ensure that the file_path attribute is correctly set before calling this function, as it directly affects the ability to save data. Additionally, the data being saved must be serializable to JSON format; otherwise, a TypeError may occur during the serialization process."
+      ],
+      "code_start_line": 22,
+      "code_end_line": 24,
+      "params": [
+        "self"
+      ],
+      "have_return": false,
+      "code_content": "    def _save_data(self):\n        with open(self.file_path, \"w\") as f:\n            f.write(json.dumps(self.data, indent=4))\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "Models/ModelBase.py/ModelBase/__exit__",
+        "Models/PlayerModel.py/PlayerModel/add_player",
+        "Models/PlayerModel.py/PlayerModel/rem_player",
+        "Models/PlayerModel.py/PlayerModel/clear_players",
+        "Models/PotModel.py/PotModel/add_pot",
+        "Models/PotModel.py/PotModel/rem_pot",
+        "Models/PotModel.py/PotModel/clear_pot",
+        "Models/RulesModel.py/RulesModel/set_mulligans",
+        "Models/RulesModel.py/RulesModel/set_options",
+        "Models/RulesModel.py/RulesModel/set_public"
+      ],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__enter__",
+      "md_content": [
+        "**__enter__**: The function of __enter__ is to facilitate the context management protocol by returning the instance of the class.\n\n**parameters**: The parameters of this Function.\n· parameter1: None\n\n**Code Description**: The __enter__ method is a special method that is part of the context management protocol in Python. When a class defines this method, it allows instances of that class to be used in a with statement. The primary purpose of this method is to set up any necessary context when entering the block of code within the with statement. In this specific implementation, the method simply returns the instance of the class itself (i.e., `self`). This means that when the context is entered, the instance can be used directly within the with block, allowing for easy access to its attributes and methods. This implementation is straightforward and does not perform any additional setup or resource allocation.\n\n**Note**: It is important to ensure that the corresponding __exit__ method is implemented in the class to properly handle cleanup when exiting the context. Without a proper __exit__ method, resources may not be released correctly, leading to potential memory leaks or other issues.\n\n**Output Example**: When the __enter__ method is called, it returns the instance of the class. For example, if an instance of the class is named `model`, the output would be `model` itself when used in a with statement like this:\n```python\nwith model as m:\n    # m is the same as model\n    print(m)  # This will output the instance of the class\n```"
+      ],
+      "code_start_line": 26,
+      "code_end_line": 27,
+      "params": [
+        "self"
+      ],
+      "have_return": true,
+      "code_content": "    def __enter__(self):\n        return self\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__exit__",
+      "md_content": [
+        "**__exit__**: The function of __exit__ is to handle the cleanup process when exiting a context, ensuring that any data modifications are saved.\n\n**parameters**: The parameters of this Function.\n· exc_type: This parameter captures the exception type if an exception occurred within the context. If no exception occurred, it is set to None.\n· exc_val: This parameter captures the exception value if an exception occurred within the context. If no exception occurred, it is set to None.\n· exc_tb: This parameter captures the traceback object if an exception occurred within the context. If no exception occurred, it is set to None.\n\n**Code Description**: The __exit__ method is part of the context management protocol in Python, which allows an object to be used in a with statement. When the execution of the block within the with statement is complete, the __exit__ method is invoked. In this implementation, the method calls the _save_data function to persist the current state of the data before exiting the context. This ensures that any changes made to the data during the context are saved, thereby maintaining data integrity.\n\nThe _save_data function, which is called within __exit__, is responsible for serializing the current data and writing it to a specified file in JSON format. This function is crucial for ensuring that any modifications made to the data are not lost when the context is exited. The invocation of _save_data in __exit__ highlights the importance of saving data at the end of a context, particularly in scenarios where data may be modified during the execution of the context.\n\nThe __exit__ method's parameters, exc_type, exc_val, and exc_tb, provide information about any exceptions that may have occurred during the execution of the context. However, in this implementation, the parameters are not utilized within the method. The primary focus remains on ensuring that the data is saved, regardless of whether an exception occurred or not.\n\n**Note**: It is essential to ensure that the file_path attribute is correctly set before the __exit__ method is called, as this directly affects the ability to save data. Additionally, the data being saved must be serializable to JSON format; otherwise, a TypeError may occur during the serialization process. This method plays a critical role in maintaining the reliability and consistency of the data throughout the lifecycle of the object."
+      ],
+      "code_start_line": 29,
+      "code_end_line": 30,
+      "params": [
+        "self",
+        "exc_type",
+        "exc_val",
+        "exc_tb"
+      ],
+      "have_return": false,
+      "code_content": "    def __exit__(self, exc_type, exc_val, exc_tb):\n        self._save_data()",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    }
+  ],
+  "Models/PlayerModel.py": [
+    {
+      "type": "ClassDef",
+      "name": "PlayerModel",
+      "md_content": [
+        "**PlayerModel**: The function of PlayerModel is to manage a list of players associated with a specific guild in a draft system.\n\n**attributes**: The attributes of this Class.\n· guild: A string representing the guild name associated with the data.  \n· data: A list that holds the players currently registered for the draft.\n\n**Code Description**: The PlayerModel class inherits from the ModelBase class, which provides foundational functionality for managing data persistence related to a specific guild. Upon initialization, the PlayerModel takes a single parameter, `guild`, which specifies the guild's identifier. This parameter is passed to the superclass constructor along with a fixed string \"players\" that designates the type of data being managed.\n\nThe PlayerModel class includes three primary methods for manipulating the player data:\n\n1. **add_player(self, player: str) -> None**: This method adds a player to the `data` list if the player is not already present. It first checks if the player exists in the list; if not, it appends the player's name and calls the `_save_data` method from the ModelBase class to persist the updated list.\n\n2. **rem_player(self, player: str) -> None**: This method removes a player from the `data` list if the player is currently registered. It checks for the player's existence in the list, removes them if found, and subsequently calls `_save_data` to ensure the changes are saved.\n\n3. **clear_players(self)**: This method clears the entire list of players by setting `data` to an empty list and invokes `_save_data` to save this state.\n\nThe PlayerModel class is utilized within the DraftBot's methods, specifically in the `players`, `draft`, and `draft_pot` functions. In these contexts, PlayerModel is instantiated with the guild's channel ID, allowing the bot to manage players specific to that channel's draft. For instance, in the `players` method, commands such as \"show\", \"add\", \"remove\", and \"clear\" are processed, invoking the respective PlayerModel methods to modify the player list based on user input. The `draft` method also relies on PlayerModel to retrieve the current list of players before proceeding with the drafting process.\n\n**Note**: When using the PlayerModel class, ensure that the guild identifier is correctly specified to avoid issues with data management. The methods provided allow for straightforward manipulation of the player list, but care should be taken to handle cases where players may not exist in the list when attempting to remove them.\n\n**Output Example**: An example of the data structure that might be loaded into the `data` attribute could be:\n```json\n[\n    \"Player1\",\n    \"Player2\",\n    \"Player3\"\n]\n```"
+      ],
+      "code_start_line": 6,
+      "code_end_line": 23,
+      "params": [],
+      "have_return": true,
+      "code_content": "class PlayerModel(ModelBase):\n    def __init__(self, guild: str):\n        super().__init__(guild, \"players\")\n    \n    def add_player(self, player: str) -> None:\n        if player in self.data:\n            return\n        self.data.append(player)\n        self._save_data()\n    \n    def rem_player(self, player: str) -> None:\n        if player in self.data:\n            self.data.remove(player)\n            self._save_data()\n    \n    def clear_players(self):\n        self.data = []\n        self._save_data()\n",
+      "name_column": 6,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py",
+        "DraftBot.py/DraftBot/players",
+        "DraftBot.py/DraftBot/draft",
+        "DraftBot.py/DraftBot/draft_pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__init__",
+      "md_content": [
+        "**__init__**: The function of __init__ is to initialize an instance of the PlayerModel class with a specified guild.\n\n**parameters**: The parameters of this Function.\n· guild: A string representing the identifier of the guild to which the player belongs.\n\n**Code Description**: The __init__ function is a constructor for the PlayerModel class. It takes a single parameter, guild, which is expected to be a string. This parameter is used to specify the guild associated with the player model instance being created. The function calls the constructor of the parent class using the super() function, passing in the guild parameter along with a hardcoded string \"players\". This indicates that the PlayerModel is likely a subclass of another class that requires these two parameters for its initialization. The use of super() ensures that any initialization logic defined in the parent class is executed, allowing the PlayerModel to inherit and extend the functionality of its parent class appropriately.\n\n**Note**: It is important to ensure that the guild parameter is a valid string when creating an instance of PlayerModel, as it directly influences the behavior and state of the object. Additionally, the hardcoded string \"players\" suggests that this model is specifically tailored for player-related data within the context of the specified guild."
+      ],
+      "code_start_line": 7,
+      "code_end_line": 8,
+      "params": [
+        "self",
+        "guild"
+      ],
+      "have_return": false,
+      "code_content": "    def __init__(self, guild: str):\n        super().__init__(guild, \"players\")\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "add_player",
+      "md_content": [
+        "**add_player**: The function of add_player is to add a new player to the player data list if the player does not already exist in the list.\n\n**parameters**: The parameters of this Function.\n· player: A string representing the name of the player to be added.\n\n**Code Description**: The add_player function checks if the specified player is already present in the data list. If the player is found, the function terminates early without making any changes. If the player is not found, it appends the player's name to the data list and subsequently calls the _save_data method to persist the updated list to a file in JSON format. This ensures that the player data is consistently saved and can be retrieved later.\n\nThe add_player function is invoked within the players method of the DraftBot class. In this context, when a user sends a message to add a player, the players method processes the command and verifies that the mentioned user is a valid member of the server and not a bot. Upon successful validation, the add_player function is called to include the player in the draft list. This integration highlights the importance of the add_player function in managing the player roster for the draft, ensuring that only valid players are added and that the data remains up-to-date.\n\nThe _save_data function, which is called after modifying the player list, plays a crucial role in maintaining data integrity by saving the current state of the player data to a specified file. This relationship emphasizes the need for data persistence in the overall functionality of the draft management system.\n\n**Note**: It is essential to ensure that the player name being added is valid and that the data list is correctly initialized before calling this function. Additionally, the _save_data function must be functioning properly to avoid any issues with data persistence.\n\n**Output Example**: If the player \"Alice\" is added successfully, the updated player data list might look like this:\n```\n[\"Alice\", \"Bob\", \"Charlie\"]\n```"
+      ],
+      "code_start_line": 10,
+      "code_end_line": 14,
+      "params": [
+        "self",
+        "player"
+      ],
+      "have_return": true,
+      "code_content": "    def add_player(self, player: str) -> None:\n        if player in self.data:\n            return\n        self.data.append(player)\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/players"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "rem_player",
+      "md_content": [
+        "**rem_player**: The function of rem_player is to remove a specified player from the player data list.\n\n**parameters**: The parameters of this Function.\n· player: A string representing the name of the player to be removed from the data list.\n\n**Code Description**: The rem_player function is designed to manage the player data within the PlayerModel class. It takes a single parameter, player, which is expected to be a string. The function first checks if the specified player exists in the self.data list. If the player is found, the function proceeds to remove the player from the list using the remove method. Following the removal, the function calls the _save_data method to ensure that the current state of the player data is saved to the designated file in JSON format.\n\nThe rem_player function is invoked within the players method of the DraftBot class. Specifically, when the command \"remove\" is issued, the players method iterates over the specified players in the message, calling rem_player for each one. This integration highlights the function's role in maintaining the integrity of the player list during the draft process. By ensuring that the player data is updated and saved after a removal operation, the rem_player function contributes to the overall functionality of the DraftBot, allowing for dynamic management of players in a gaming context.\n\nThe reliance on the _save_data method underscores the importance of data persistence in this application. It ensures that any changes made to the player list are not lost and can be retrieved in future sessions. This function is crucial for maintaining an accurate representation of the current players involved in the draft.\n\n**Note**: It is essential to ensure that the player being removed is indeed present in the data list to avoid potential errors. Additionally, the proper functioning of the rem_player method depends on the correct implementation of the _save_data method, as it is responsible for saving the updated player list."
+      ],
+      "code_start_line": 16,
+      "code_end_line": 19,
+      "params": [
+        "self",
+        "player"
+      ],
+      "have_return": false,
+      "code_content": "    def rem_player(self, player: str) -> None:\n        if player in self.data:\n            self.data.remove(player)\n            self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/players"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "clear_players",
+      "md_content": [
+        "**clear_players**: The function of clear_players is to remove all players from the current player list.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The clear_players function is responsible for resetting the player data by clearing the list of players stored in the object. When invoked, it sets the data attribute of the PlayerModel instance to an empty list, effectively removing all players. Following this operation, it calls the _save_data method to persist the changes to the underlying storage, ensuring that the cleared state is saved. This function is crucial for scenarios where a complete reset of the player list is required, such as starting a new draft or clearing out previous selections.\n\nThe clear_players function is called within the players method of the DraftBot class when the command \"clear\" is issued. This integration allows users to easily manage the player list through a Discord bot interface. When a user sends the command to clear the players, the bot invokes the clear_players function, which empties the player list and saves this state, providing immediate feedback to the user through a reaction (👍) to indicate that the action was successful.\n\nOverall, the clear_players function plays a vital role in maintaining the integrity and current state of the player data within the PlayerModel, ensuring that any modifications are accurately reflected in the persistent storage.\n\n**Note**: It is important to understand that invoking clear_players will permanently remove all players from the list. Users should ensure that this action is intended, as it cannot be undone unless the data is restored from a previous state."
+      ],
+      "code_start_line": 21,
+      "code_end_line": 23,
+      "params": [
+        "self"
+      ],
+      "have_return": false,
+      "code_content": "    def clear_players(self):\n        self.data = []\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/players"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    }
+  ],
+  "Models/PotModel.py": [
+    {
+      "type": "ClassDef",
+      "name": "PotModel",
+      "md_content": [
+        "**PotModel**: The function of PotModel is to manage a collection of pot elements associated with a specific guild, allowing for the addition, removal, and clearing of elements.\n\n**attributes**: The attributes of this Class.\n· guild: A string representing the guild name associated with the data.\n· data: A list that holds the pot elements.\n\n**Code Description**: The PotModel class inherits from the ModelBase class, which provides foundational functionality for managing data persistence. Upon initialization, the PotModel class requires a `guild` parameter, which specifies the guild's unique identifier. This parameter is passed to the superclass constructor to establish the context for data storage.\n\nThe PotModel class includes three primary methods for manipulating the pot elements:\n\n1. **add_pot(element: str)**: This method adds a new element to the pot if it is not already present in the `data` list and is not equal to \"mulligan\" (case insensitive). If the element is successfully added, the `_save_data` method is called to persist the changes to the associated JSON file.\n\n2. **rem_pot(element: str)**: This method removes an existing element from the pot if it is found in the `data` list. Upon successful removal, the `_save_data` method is invoked to update the stored data.\n\n3. **clear_pot()**: This method clears all elements from the pot, effectively resetting the `data` list to an empty state. Following this operation, the `_save_data` method is called to ensure that the changes are saved.\n\nThe PotModel class is utilized within the DraftBot's pot command, which allows users to interact with the pot through various commands such as \"show\", \"add\", \"remove\", and \"clear\". Each command creates an instance of PotModel, passing the guild identifier (derived from the message channel ID) to manage the pot's state effectively. For instance, when a user issues the \"add\" command, the PotModel's `add_pot` method is called to include the specified element in the pot. Similarly, the \"remove\" command invokes the `rem_pot` method, and the \"clear\" command calls `clear_pot`.\n\nThis design ensures that the pot's state is consistently managed and that any changes are immediately reflected in the persistent storage, allowing for seamless interaction during the drafting process.\n\n**Note**: When using the PotModel class, ensure that the guild identifier is correctly specified to avoid issues with data management. It is also important to handle cases where elements may already exist in the pot to maintain data integrity."
+      ],
+      "code_start_line": 4,
+      "code_end_line": 20,
+      "params": [],
+      "have_return": false,
+      "code_content": "class PotModel(ModelBase):\n    def __init__(self, guild: str):\n        super().__init__(guild, \"pot\")\n    \n    def add_pot(self, element: str):\n        if not element in self.data and not element.lower() == \"mulligan\":\n            self.data.append(element)\n            self._save_data()\n    \n    def rem_pot(self, element: str):\n        if element in self.data:\n            self.data.remove(element)\n            self._save_data()\n    \n    def clear_pot(self):\n        self.data.clear()\n        self._save_data()\n",
+      "name_column": 6,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py",
+        "DraftBot.py/DraftBot/pot",
+        "DraftBot.py/DraftBot/draft",
+        "DraftBot.py/DraftBot/draft_pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__init__",
+      "md_content": [
+        "**__init__**: The function of __init__ is to initialize an instance of the class, setting up the necessary attributes for the object.\n\n**parameters**: The parameters of this Function.\n· parameter1: guild (str) - This parameter represents the identifier for a guild, which is typically a community or group within the application context.\n\n**Code Description**: The __init__ function is a constructor method that is called when an instance of the class is created. It takes one parameter, guild, which is expected to be a string. This parameter is passed to the superclass's constructor along with a hardcoded string \"pot\". The use of `super().__init__(guild, \"pot\")` indicates that this class is likely inheriting from a parent class that requires these two parameters for its own initialization. The first parameter, guild, is used to associate the instance with a specific guild, while the second parameter, \"pot\", likely specifies the type or category of the instance being created. This setup ensures that the instance is properly initialized with the necessary context and characteristics defined by the parent class.\n\n**Note**: It is important to ensure that the guild parameter is a valid string when creating an instance of this class, as it is essential for the proper functioning of the object within the application. Additionally, the hardcoded string \"pot\" should be understood in the context of the parent class's implementation to fully grasp its significance."
+      ],
+      "code_start_line": 5,
+      "code_end_line": 6,
+      "params": [
+        "self",
+        "guild"
+      ],
+      "have_return": false,
+      "code_content": "    def __init__(self, guild: str):\n        super().__init__(guild, \"pot\")\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "add_pot",
+      "md_content": [
+        "**add_pot**: The function of add_pot is to add a specified element to the pot if it is not already present and is not the string \"mulligan\".\n\n**parameters**: The parameters of this Function.\n· element: str - The element to be added to the pot.\n\n**Code Description**: The add_pot function is designed to manage the contents of a pot by adding a new element to it. It first checks if the provided element is not already present in the pot's data and ensures that the element is not the string \"mulligan\". If both conditions are satisfied, the element is appended to the pot's data list. Following this addition, the function calls the _save_data method to persist the updated state of the pot to a file.\n\nThe add_pot function is invoked in the pot method of the DraftBot class when a user sends a command to add an item to the pot. Specifically, when the command \"add\" is recognized, the pot method creates an instance of the PotModel class associated with the current message channel, and subsequently calls add_pot with the specified item. This integration ensures that user interactions with the bot directly modify the pot's contents, reflecting real-time updates based on user commands.\n\nThe add_pot function relies on the _save_data method from the ModelBase class to ensure that any changes made to the pot's data are saved. This relationship highlights the importance of data persistence within the application, as it allows for the pot's state to be maintained across different sessions and interactions.\n\n**Note**: It is essential to ensure that the element being added is a valid string and that the pot's data structure is properly initialized before invoking this function. Additionally, users should be aware that attempting to add the string \"mulligan\" will not result in any changes to the pot."
+      ],
+      "code_start_line": 8,
+      "code_end_line": 11,
+      "params": [
+        "self",
+        "element"
+      ],
+      "have_return": false,
+      "code_content": "    def add_pot(self, element: str):\n        if not element in self.data and not element.lower() == \"mulligan\":\n            self.data.append(element)\n            self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/pot",
+        "DraftBot.py/DraftBot/draft_pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "rem_pot",
+      "md_content": [
+        "**rem_pot**: The function of rem_pot is to remove a specified element from the pot data.\n\n**parameters**: The parameters of this Function.\n· element: A string representing the element to be removed from the pot data.\n\n**Code Description**: The rem_pot function is designed to manage the contents of the pot by removing a specified element, if it exists within the current data set. The function first checks if the provided element is present in the self.data list. If the element is found, it is removed using the remove method, which modifies the list in place. Following the removal, the function calls the _save_data method to persist the updated state of the pot data to a file. This ensures that any changes made to the pot are saved, allowing for data consistency across sessions.\n\nThe rem_pot function is invoked within the pot method of the DraftBot class. When a user sends a message with the command \"remove,\" the pot method creates an instance of PotModel, passing the channel ID as a string. It then calls rem_pot with the specified element to remove it from the pot. After successfully executing the removal, the bot acknowledges the action by adding a thumbs-up reaction to the message, indicating to the user that the operation was successful.\n\nThis function is crucial for maintaining the integrity of the pot's data, as it allows for dynamic updates based on user interactions. By ensuring that the data is saved after modifications, the rem_pot function plays a vital role in the overall functionality of the pot management system within the application.\n\n**Note**: It is important to ensure that the element being removed is indeed present in the pot data to avoid potential errors. Additionally, the _save_data method must function correctly to ensure that the changes are properly persisted."
+      ],
+      "code_start_line": 13,
+      "code_end_line": 16,
+      "params": [
+        "self",
+        "element"
+      ],
+      "have_return": false,
+      "code_content": "    def rem_pot(self, element: str):\n        if element in self.data:\n            self.data.remove(element)\n            self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "clear_pot",
+      "md_content": [
+        "**clear_pot**: The function of clear_pot is to remove all options from the pot and save the updated state of the pot data.\n\n**parameters**: The parameters of this Function.\n· There are no parameters for this function.\n\n**Code Description**: The clear_pot function is designed to clear all entries from the pot, which is represented by the data attribute of the PotModel instance. When invoked, it calls the clear method on self.data, effectively removing all elements from the pot. Following this operation, it invokes the _save_data method to persist the changes made to the pot's state. This ensures that the cleared state is saved to the designated file, maintaining data integrity across sessions.\n\nThe clear_pot function is called within the pot method of the DraftBot class. Specifically, when a user sends a command to clear the pot, the pot method creates an instance of PotModel associated with the current Discord channel. It then calls clear_pot, which clears the pot and saves the updated state. After executing this command, the bot acknowledges the action by adding a thumbs-up reaction to the user's message, indicating that the command was successfully processed.\n\nThe clear_pot function plays a crucial role in managing the pot's data, particularly in scenarios where the pot needs to be reset, such as before starting a new draft or when the current options are no longer relevant. By ensuring that the data is both cleared and saved, it helps maintain an accurate and up-to-date representation of the pot's contents.\n\n**Note**: It is important to ensure that the data structure used for self.data is properly initialized before calling clear_pot. Additionally, the _save_data method must be functioning correctly to avoid any issues with data persistence after clearing the pot."
+      ],
+      "code_start_line": 18,
+      "code_end_line": 20,
+      "params": [
+        "self"
+      ],
+      "have_return": false,
+      "code_content": "    def clear_pot(self):\n        self.data.clear()\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/pot",
+        "DraftBot.py/DraftBot/draft_pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    }
+  ],
+  "Models/RulesModel.py": [
+    {
+      "type": "ClassDef",
+      "name": "RulesModel",
+      "md_content": [
+        "**RulesModel**: The function of RulesModel is to manage game rules related to a specific guild, including settings for mulligans, options per player, and visibility of the draft.\n\n**attributes**: The attributes of this Class.\n· guild: A string representing the guild name associated with the rules data.  \n· data: A dictionary that holds the game rules, including settings for mulligans, options per player, and public visibility.\n\n**Code Description**: The RulesModel class inherits from the ModelBase class, which provides foundational functionality for managing data persistence related to a specific guild. Upon initialization, the RulesModel constructor takes a single parameter, `guild`, which specifies the guild's unique identifier. It calls the superclass constructor with the guild name and a predefined file name \"rules\" to manage the rules data.\n\nThe RulesModel class initializes its `data` attribute with default values if no existing data is found. The default settings include:\n- \"mulligans\": A boolean indicating whether mulligans are allowed (default is True).\n- \"options\": An integer representing the number of options each player has (default is 3).\n- \"public\": A boolean indicating whether the draft is public (default is True).\n\nThe class provides three methods to modify these settings:\n1. **set_mulligans**: This method accepts a boolean parameter to enable or disable mulligans. It updates the `mulligans` setting in the `data` dictionary and calls the `_save_data` method to persist the changes.\n2. **set_options**: This method accepts an integer parameter to set the number of options per player. It raises a ValueError if the provided value is less than 1, ensuring that the options count is valid. Upon successful validation, it updates the `options` setting and saves the data.\n3. **set_public**: This method accepts a boolean parameter to set the visibility of the draft. It updates the `public` setting in the `data` dictionary and saves the changes.\n\nThe RulesModel class is utilized in various parts of the DraftBot, specifically in the `rules`, `draft`, and `draft_pot` methods. In the `rules` method, it allows users to modify the game rules through commands, such as allowing or disallowing mulligans, setting the number of options per player, and toggling the public visibility of the draft. The `draft` method uses the RulesModel to ensure that the drafting process adheres to the specified rules, checking the number of options available against the number of players. The `draft_pot` method also references the RulesModel to determine the order of player picks based on the defined rules.\n\n**Note**: When using the RulesModel, ensure that the guild identifier is correctly specified to avoid issues with data loading and saving. It is important to validate inputs when modifying settings to maintain the integrity of the game rules."
+      ],
+      "code_start_line": 4,
+      "code_end_line": 26,
+      "params": [],
+      "have_return": false,
+      "code_content": "class RulesModel(ModelBase):\n    def __init__(self, guild: str):\n        super().__init__(guild, \"rules\")\n        if not self.data:\n            self.data = {\n                \"mulligans\": True,\n                \"options\": 3,\n                \"public\": True,\n            }\n    \n    def set_mulligans(self, mulligans: bool):\n        self.data[\"mulligans\"] = mulligans\n        self._save_data()\n    \n    def set_options(self, options: int):\n        if options < 1:\n            raise ValueError(\"Options must be greater than 0\")\n        self.data[\"options\"] = options\n        self._save_data()\n    \n    def set_public(self, public: bool):\n        self.data[\"public\"] = public\n        self._save_data()\n",
+      "name_column": 6,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py",
+        "DraftBot.py/DraftBot/rules",
+        "DraftBot.py/DraftBot/draft",
+        "DraftBot.py/DraftBot/draft_pot"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "__init__",
+      "md_content": [
+        "**__init__**: The function of __init__ is to initialize an instance of the RulesModel class with specific default settings related to game rules.\n\n**parameters**: The parameters of this Function.\n· guild: A string representing the unique identifier for the guild.\n\n**Code Description**: The __init__ function is a constructor for the RulesModel class. It takes one parameter, guild, which is expected to be a string that identifies the guild. The constructor first calls the parent class's constructor using `super().__init__(guild, \"rules\")`, which initializes the base class with the provided guild and a fixed string \"rules\". This indicates that the RulesModel is likely a specialized version of a more general model that handles different types of data or configurations.\n\nAfter the parent class initialization, the constructor checks if the `data` attribute is not already set (i.e., it evaluates to False). If `self.data` is not initialized, it assigns a default dictionary to it. This dictionary contains three key-value pairs: \n- \"mulligans\": set to True, indicating that mulligans are allowed in the game.\n- \"options\": set to 3, which likely represents the number of options available for a particular game rule.\n- \"public\": set to True, suggesting that the rules are visible to all participants.\n\nThis initialization ensures that every instance of RulesModel has a consistent starting state with predefined rules unless explicitly modified later.\n\n**Note**: It is important to ensure that the guild parameter is correctly passed as a string to avoid type errors during initialization. Additionally, the default values set in the data dictionary can be modified after the object is created, allowing for flexibility in rule management."
+      ],
+      "code_start_line": 5,
+      "code_end_line": 12,
+      "params": [
+        "self",
+        "guild"
+      ],
+      "have_return": false,
+      "code_content": "    def __init__(self, guild: str):\n        super().__init__(guild, \"rules\")\n        if not self.data:\n            self.data = {\n                \"mulligans\": True,\n                \"options\": 3,\n                \"public\": True,\n            }\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [],
+      "reference_who": [],
+      "special_reference_type": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "set_mulligans",
+      "md_content": [
+        "**set_mulligans**: The function of set_mulligans is to set the mulligan rule for the game, indicating whether players are allowed to take mulligans or not.\n\n**parameters**: The parameters of this Function.\n· mulligans: A boolean value that determines if mulligans are allowed (True) or not (False).\n\n**Code Description**: The set_mulligans function updates the internal state of the RulesModel by assigning the provided boolean value to the \"mulligans\" key in the data dictionary. This operation effectively modifies the game's rules regarding mulligans, which are a common feature in card games allowing players to redraw their hands under certain conditions. After updating the data, the function calls the _save_data method to persist this change to the designated file in JSON format. This ensures that any modifications made to the rules are saved and can be retrieved in future sessions.\n\nThe set_mulligans function is invoked within the rules method of the DraftBot class. When a user sends a command to allow or disallow mulligans, the rules method processes the input and calls set_mulligans with the appropriate boolean value based on the user's response. This interaction highlights the function's role in dynamically adjusting game settings based on user commands, thereby enhancing the gameplay experience.\n\nThe _save_data method, which is called within set_mulligans, is crucial for maintaining data integrity across the application. It serializes the current state of the data and writes it to a file, ensuring that any changes made to the rules are not lost when the application is restarted. This function is central to the overall functionality of the RulesModel, as it guarantees that the rules configuration is consistently updated and saved.\n\n**Note**: It is important to ensure that the data attribute is properly initialized and that the file_path is correctly set before calling this function. Additionally, the value passed to mulligans must be a boolean; otherwise, the intended behavior of the function may not be achieved."
+      ],
+      "code_start_line": 14,
+      "code_end_line": 16,
+      "params": [
+        "self",
+        "mulligans"
+      ],
+      "have_return": false,
+      "code_content": "    def set_mulligans(self, mulligans: bool):\n        self.data[\"mulligans\"] = mulligans\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/rules"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "set_options",
+      "md_content": [
+        "**set_options**: The function of set_options is to set the number of options for a game or draft, ensuring that the value provided is valid.\n\n**parameters**: The parameters of this Function.\n· options: int - The number of options to be set, which must be greater than 0.\n\n**Code Description**: The set_options function is responsible for updating the \"options\" attribute in the data dictionary of the RulesModel class. It first checks if the provided options value is less than 1. If it is, a ValueError is raised with a message indicating that the options must be greater than 0. If the value is valid, it assigns the options value to the \"options\" key in the data dictionary and then calls the _save_data method to persist this change.\n\nThis function is called within the rules method of the DraftBot class. When a user sends a command to set the options per player, the rules method attempts to parse the command and the accompanying value. If the command matches \"optionsperplayer\", it tries to convert the provided text into an integer and calls set_options with this value. If the conversion fails or if the value is invalid (i.e., less than 1), an error message is sent back to the user, indicating invalid syntax.\n\nThe set_options function plays a crucial role in maintaining the integrity of the game's configuration by ensuring that the options are set correctly and saved for future reference. It is part of a broader set of functionalities that manage game rules and settings, reflecting the importance of user-defined parameters in the gaming experience.\n\n**Note**: It is essential to provide a valid integer greater than 0 when calling this function. Failure to do so will result in a ValueError, which should be handled appropriately in the calling context to ensure a smooth user experience."
+      ],
+      "code_start_line": 18,
+      "code_end_line": 22,
+      "params": [
+        "self",
+        "options"
+      ],
+      "have_return": false,
+      "code_content": "    def set_options(self, options: int):\n        if options < 1:\n            raise ValueError(\"Options must be greater than 0\")\n        self.data[\"options\"] = options\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/rules"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    },
+    {
+      "type": "FunctionDef",
+      "name": "set_public",
+      "md_content": [
+        "**set_public**: The function of set_public is to update the visibility status of the rules configuration in the RulesModel.\n\n**parameters**: The parameters of this Function.\n· public: A boolean value that indicates whether the rules should be set to public (True) or private (False).\n\n**Code Description**: The set_public function modifies the \"public\" attribute of the RulesModel's data dictionary, which determines if the rules are accessible to others. When invoked, it assigns the provided boolean value to the \"public\" key in the data dictionary. Following this assignment, the function calls the _save_data method to persist the changes made to the data. This ensures that the updated visibility status is saved to the designated file, maintaining data integrity.\n\nThe set_public function is utilized within the rules method of the DraftBot class. Specifically, when a user sends a command to set the draft to public or private, the rules method parses the command and its arguments. If the command is recognized as \"publicdraft,\" it checks the accompanying argument. If the argument is \"y,\" it calls set_public with True, making the draft public. Conversely, if the argument is \"n,\" it calls set_public with False, keeping the draft private. After executing the command, the method provides feedback to the user by adding a thumbs-up reaction to the message.\n\nThis function plays a crucial role in the overall functionality of the DraftBot, allowing users to control the visibility of their draft rules dynamically. By ensuring that the changes are saved immediately after they are made, set_public contributes to a seamless user experience and reliable data management.\n\n**Note**: It is essential to provide a valid boolean argument when calling set_public. Additionally, the file_path attribute must be correctly configured in the RulesModel to ensure that the changes are saved successfully."
+      ],
+      "code_start_line": 24,
+      "code_end_line": 26,
+      "params": [
+        "self",
+        "public"
+      ],
+      "have_return": false,
+      "code_content": "    def set_public(self, public: bool):\n        self.data[\"public\"] = public\n        self._save_data()\n",
+      "name_column": 8,
+      "item_status": "doc_up_to_date",
+      "who_reference_me": [
+        "DraftBot.py/DraftBot/rules"
+      ],
+      "reference_who": [
+        "Models/ModelBase.py/ModelBase/_save_data"
+      ],
+      "special_reference_type": [
+        false
+      ]
+    }
+  ],
+  ".venv/bin/activate_this.py": []
+}
