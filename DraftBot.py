@@ -8,6 +8,7 @@ from discord import app_commands, Interaction, Guild
 from Models.ModelBase import InteractionChannel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
+from Views.AddPotView import AddPotView
 from Views.DraftView import DraftView
 from Views.OptionsView import OptionsView
 
@@ -75,8 +76,21 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
     lock.release()
 
 
-async def pick_phase(interation: Interaction, users: list[discord.Member], picks: int):
-    pass
+async def pick_phase(interaction: Interaction, users: list[discord.Member], picks: int):
+    pot_queue, order = snake_order(users, picks)
+    await interaction.followup.send("Beginning picking phase. Picks will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
+    lock = Lock()
+    for user in pot_queue:
+        async def callback(interaction: Interaction, option: str):
+            await interaction.message.delete()
+            await interaction.response.send_message(content=f"{interaction.user.mention} has added {option} to the pot")
+            lock.release()
+        await lock.acquire()
+        pot_view = AddPotView(interaction.guild, interaction.channel, user)
+        pot_view.callback = callback
+        await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}", view=pot_view)
+    await lock.acquire()
+    lock.release()
     
 
 async def choose_phase(interaction: Interaction, users: list[discord.Member], options: int):

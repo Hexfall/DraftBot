@@ -86,3 +86,11 @@ class OptionsModel(ModelBase):
         except ValueError:
             pass
     
+    def get_available_add_options(self) -> list[str]:
+        l = self.get_unbanned_options().copy()
+        for opt in self.get_pot():
+            try:
+                l.remove(opt)
+            except ValueError:
+                pass
+        return l

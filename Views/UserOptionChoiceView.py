@@ -9,6 +9,7 @@ MAX_OPTIONS = 25
 class UserOptionChoiceView:
     def __init__(self, parent_view: View, options: list[str], option_placeholder: str = "Choose option...", row: int = 0):
         self.parent = parent_view
+        self.options = options
         
         self.page: int = 0
         self.buttons_visible: bool = False
@@ -30,7 +31,7 @@ class UserOptionChoiceView:
         self.prev_button.callback = self.prev_callback
         self.next_button.callback = self.next_callback
         
-        self.update_options(options)
+        self.update_options()
     
     async def __callback(self, interaction: Interaction):
         await self.callback(interaction)
@@ -61,18 +62,18 @@ class UserOptionChoiceView:
             self.parent.add_item(self.next_button)
         self.buttons_visible = not self.buttons_visible
 
-    def update_options(self, options: list[str]):
-        if self.page * MAX_OPTIONS > len(options):
-            self.page = len(options) // MAX_OPTIONS
-        opts = options[self.page * MAX_OPTIONS: (self.page + 1) * MAX_OPTIONS]
+    def update_options(self):
+        if self.page * MAX_OPTIONS > len(self.options):
+            self.page = len(self.options) // MAX_OPTIONS
+        opts = self.options[self.page * MAX_OPTIONS: (self.page + 1) * MAX_OPTIONS]
         self.option_select.options = [SelectOption(label=opt) for opt in opts]
-        if len(options) == 0:
+        if len(self.options) == 0:
             self.option_select.options = [SelectOption(label="No options")]
-        if len(options) <= MAX_OPTIONS and self.buttons_visible:
+        if len(self.options) <= MAX_OPTIONS and self.buttons_visible:
             self.toggle_buttons()
-        elif len(options) > MAX_OPTIONS and not self.buttons_visible:
+        elif len(self.options) > MAX_OPTIONS and not self.buttons_visible:
             self.toggle_buttons()
-        max_page = ceil(len(options) / MAX_OPTIONS)
+        max_page = ceil(len(self.options) / MAX_OPTIONS)
         self.page_display.label = f"Page {self.page+1}/{max_page}"
     
     def get_option(self) -> str:
