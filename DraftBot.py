@@ -118,7 +118,7 @@ async def choose_phase(interaction: Interaction, users: list[discord.Member], op
         for lock in locks.values():
             await lock.acquire()
     
-    await interaction.followup.send("Draft complete. Results:\n- " + "\n- ".join([f"{k}: {v}" for k, v in user_picks.items()]))
+    await interaction.followup.send("Draft complete. Results:\n- " + "\n- ".join([f"{k.mention}: {v}" for k, v in user_picks.items()]))
     
 
 def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
