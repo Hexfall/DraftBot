@@ -106,3 +106,9 @@ class OptionsModel(ModelBase):
         pot = self.get_pot(*exclude)
         shuffle(pot)
         return pot
+    
+    def clear_bans(self) -> None:
+        self.data['bans'] = []
+    
+    def clear_pot(self) -> None:
+        self.data['pot'] = []

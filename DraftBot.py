@@ -53,6 +53,9 @@ async def edit_bans(interaction: Interaction):
 async def draft(interaction: Interaction):
     async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
         await interaction.response.defer()
+        with OptionsModel(interaction.guild, interaction.channel) as options_model:
+            options_model.clear_bans()
+            options_model.clear_picks()
         await ban_phase(interaction, users, bans)
         await pick_phase(interaction, users, picks)
         await choose_phase(interaction, users, options)
@@ -104,16 +107,27 @@ async def choose_phase(interaction: Interaction, users: list[discord.Member], op
         await locks[user].acquire()
         
     while any([p == "Mulligan" for p in user_picks.values()]):
+        draft_message = "Draft step in progress. Players have been given the following options:\n"
         with OptionsModel(interaction.guild, interaction.channel) as options_model:
             options = options_model.get_shuffled_pot(*user_picks.values())
         for user in users:
+            user_options = [options.pop() for _ in range(options_per_player)]
+            if options_per_player == 1:
+                user_picks[user] = user_options[0]
+            if user_picks[user] != "Mulligan":
+                locks[interaction.user].release()
+                draft_message += f"- {user.mention}: {user_picks[user]}\n"
+                continue
+                
             async def callback(interaction: Interaction, option: str):
                 await interaction.response.edit_message(content="Choice registered", view=None)
                 user_picks[interaction.user] = option
                 locks[interaction.user].release()
-            pick_view = DraftPickView(user, options)
+            pick_view = DraftPickView(user, user_options)
             pick_view.callback = callback
             await user.send("Select your pick", view=pick_view)
+            draft_message += f"- {user.mention}:\n  - " + "\n  - ".join(user_options) + "\n"
+            
         options_per_player -= 1
         for lock in locks.values():
             await lock.acquire()
