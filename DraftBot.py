@@ -55,7 +55,7 @@ async def draft(interaction: Interaction):
         await interaction.response.defer()
         with OptionsModel(interaction.guild, interaction.channel) as options_model:
             options_model.clear_bans()
-            options_model.clear_picks()
+            options_model.clear_pot()
         await ban_phase(interaction, users, bans)
         await pick_phase(interaction, users, picks)
         await choose_phase(interaction, users, options)
