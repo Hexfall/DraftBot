@@ -1,3 +1,4 @@
+from random import shuffle
 from typing import Optional
 
 from discord import Guild
@@ -25,10 +26,16 @@ class OptionsModel(ModelBase):
             self.data['bans'] = []
         return self.data['bans']
     
-    def get_pot(self) -> list[str]:
+    def get_pot(self, *exclude: str) -> list[str]:
         if not 'pot' in self.data.keys():
             self.data['pot'] = []
-        return self.data['pot']
+        pot = self.data['pot'].copy()
+        for e in exclude:
+            try:
+                pot.remove(e)
+            except ValueError:
+                pass
+        return pot
     
     def get_unbanned_options(self) -> list[str]:
         opts = self.get_options().copy()
@@ -94,3 +101,8 @@ class OptionsModel(ModelBase):
             except ValueError:
                 pass
         return l
+    
+    def get_shuffled_pot(self, *exclude: str) -> list[str]:
+        pot = self.get_pot(*exclude)
+        shuffle(pot)
+        return pot

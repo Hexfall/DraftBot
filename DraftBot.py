@@ -1,4 +1,5 @@
 from asyncio import Lock
+from importlib.resources import contents
 from random import shuffle
 from typing import Any
 
@@ -9,6 +10,7 @@ from Models.ModelBase import InteractionChannel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
 from Views.AddPotView import AddPotView
+from Views.DraftPickView import DraftPickView
 from Views.DraftView import DraftView
 from Views.OptionsView import OptionsView
 
@@ -93,8 +95,30 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     lock.release()
     
 
-async def choose_phase(interaction: Interaction, users: list[discord.Member], options: int):
-    pass
+async def choose_phase(interaction: Interaction, users: list[discord.Member], options_per_player: int):
+    user_picks: dict[discord.Member, str] = {}
+    locks: dict[discord.Member, Lock] = {}
+    for user in users:
+        user_picks[user] = "Mulligan"
+        locks[user] = Lock()
+        await locks[user].acquire()
+        
+    while any([p == "Mulligan" for p in user_picks.values()]):
+        with OptionsModel(interaction.guild, interaction.channel) as options_model:
+            options = options_model.get_shuffled_pot(*user_picks.values())
+        for user in users:
+            async def callback(interaction: Interaction, option: str):
+                await interaction.response.edit_message(content="Choice registered", view=None)
+                user_picks[interaction.user] = option
+                locks[interaction.user].release()
+            pick_view = DraftPickView(user, options)
+            pick_view.callback = callback
+            await user.send("Select your pick", view=pick_view)
+        options_per_player -= 1
+        for lock in locks.values():
+            await lock.acquire()
+    
+    await interaction.followup.send("Draft complete. Results:\n- " + "\n- ".join([f"{k}: {v}" for k, v in user_picks.items()]))
     
 
 def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
