@@ -20,18 +20,32 @@ async def set_server_options(interaction: Interaction) -> None:
     await interaction.response.send_message("Server default options", view=OptionsView(interaction.guild), ephemeral=True)
 
 
-@app_commands.command(name="show_pot")
-async def get_pot(interaction: Interaction, private: bool = True):
+async def _send_list(interaction: Interaction, private: bool, header_message: str, items: list[str]):
+    if not interaction.response.is_done():
+        await interaction.response.defer()
+    await interaction.followup.send("\n- ".join([header_message] + items), ephemeral=private)
+
+
+async def _send_bans(interaction: Interaction, private: bool):
+    with OptionsModel(interaction.guild, interaction.channel) as options_model:
+        bans = options_model.get_bans()
+    await _send_list(interaction, private, f"There are currently {len(bans)} banned options:", bans)
+
+
+async def _send_pot(interaction: Interaction, private: bool):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         pot = options_model.get_pot()
-    await interaction.response.send_message("\n- ".join([f"There are currently {len(pot)} options in the pot:"] + pot), ephemeral=private)
+    await _send_list(interaction, private, f"There are currently {len(pot)} options in the pot:", pot)
+        
+
+@app_commands.command(name="show_pot")
+async def get_pot(interaction: Interaction, private: bool = True):
+    await _send_pot(interaction, private)
 
 
 @app_commands.command(name="show_bans")
 async def get_bans(interaction: Interaction, private: bool = True):
-    with OptionsModel(interaction.guild, interaction.channel) as options_model:
-        bans = options_model.get_bans()
-    await interaction.response.send_message("\n- ".join([f"There are currently {len(bans)} bans:"] + bans), ephemeral=private)
+    await _send_bans(interaction, private)
 
 
 @app_commands.command()
@@ -79,6 +93,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
         await interaction.followup.send(f"It is your turn to ban, {user.mention}", view=ban_view)
     await lock.acquire()
     lock.release()
+    await _send_bans(interaction, False)
 
 
 async def pick_phase(interaction: Interaction, users: list[discord.Member], picks: int):
@@ -96,6 +111,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
         await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}", view=pot_view)
     await lock.acquire()
     lock.release()
+    await _send_pot(interaction, False)
     
 
 async def choose_phase(interaction: Interaction, users: list[discord.Member], options_per_player: int):
