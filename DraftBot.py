@@ -92,7 +92,6 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
         ban_view.callback = callback
         await interaction.followup.send(f"It is your turn to ban, {user.mention}", view=ban_view)
     await lock.acquire()
-    lock.release()
     await _send_bans(interaction, False)
 
 
@@ -110,17 +109,14 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
         pot_view.callback = callback
         await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}", view=pot_view)
     await lock.acquire()
-    lock.release()
     await _send_pot(interaction, False)
     
 
 async def choose_phase(interaction: Interaction, users: list[discord.Member], options_per_player: int):
     user_picks: dict[discord.Member, str] = {}
-    locks: dict[discord.Member, Lock] = {}
+    locks: list[Lock] = []
     for user in users:
         user_picks[user] = "Mulligan"
-        locks[user] = Lock()
-        await locks[user].acquire()
         
     while any([p == "Mulligan" for p in user_picks.values()]):
         draft_message = "Draft step in progress. Players have been given the following options:\n"
@@ -131,14 +127,16 @@ async def choose_phase(interaction: Interaction, users: list[discord.Member], op
             if options_per_player == 1:
                 user_picks[user] = user_options[0]
             if user_picks[user] != "Mulligan":
-                locks[interaction.user].release()
                 draft_message += f"- {user.mention}: {user_picks[user]}\n"
                 continue
-                
+            
+            l = Lock()
+            await l.acquire()
+            locks.append(l)
             async def callback(interaction: Interaction, option: str):
                 await interaction.response.edit_message(content="Choice registered", view=None)
                 user_picks[interaction.user] = option
-                locks[interaction.user].release()
+                l.release()
             pick_view = DraftPickView(user, user_options)
             pick_view.callback = callback
             await user.send("Select your pick", view=pick_view)
@@ -147,10 +145,10 @@ async def choose_phase(interaction: Interaction, users: list[discord.Member], op
             await interaction.followup.send(draft_message)
             
         options_per_player -= 1
-        for lock in locks.values():
-            await lock.acquire()
+        while len(locks) > 0:
+            await locks.pop().acquire()
     
-    await interaction.followup.send("Draft complete. Results:\n- " + "\n- ".join([f"{k.mention}: {v}" for k, v in user_picks.items()]))
+    await _send_list(interaction, False, "Draft complete. Results:", [f"{k.mention}: {v}" for k, v in user_picks.items()])
     
 
 def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
