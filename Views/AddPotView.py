@@ -17,6 +17,7 @@ class AddPotView(View):
             options = options_model.get_available_add_options()
         self.option_select = UserOptionChoiceView(self, options, row=1)
         self.option_select.callback = self.__callback
+        self.option_select.page_display.style = discord.ButtonStyle.green
     
     async def __callback(self, interaction: Interaction):
         if interaction.user.id != self.user.id:

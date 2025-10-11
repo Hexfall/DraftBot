@@ -17,6 +17,7 @@ class AddBanView(View):
             options = options_model.get_unbanned_options()
         self.option_select = UserOptionChoiceView(self, options, row=1)
         self.option_select.callback = self.__callback
+        self.option_select.page_display.style = discord.ButtonStyle.red
     
     async def __callback(self, interaction: Interaction):
         if interaction.user.id != self.user.id:
