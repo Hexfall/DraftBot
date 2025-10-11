@@ -74,7 +74,7 @@ class OptionsModel(ModelBase):
     def add_ban(self, option: str):
         if not option in self.get_bans():
             self.data["bans"].append(option)
-        self.remove_option(option)
+        self.remove_pot(option)
     
     def remove_ban(self, option: str):
         self.get_bans() # Ensure 'bans' exists
