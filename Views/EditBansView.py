@@ -1,5 +1,5 @@
 import discord
-from discord import Guild, User, SelectOption, Interaction
+from discord import Guild, Interaction
 from discord.ui import View
 
 from Models.ModelBase import InteractionChannel

@@ -11,6 +11,7 @@ from Views.AddPotView import AddPotView
 from Views.DraftPickView import DraftPickView
 from Views.DraftView import DraftView
 from Views.EditBansView import EditBansView
+from Views.EditPotView import EditPotView
 from Views.OptionsView import OptionsView
 
 
@@ -40,7 +41,7 @@ async def edit_options(interaction: Interaction):
     
 @app_commands.command()
 async def edit_pot(interaction: Interaction):
-    pass
+    await interaction.response.send_message("Edit pot", view=EditPotView(interaction.guild, interaction.channel), ephemeral=True)
 
 
 @app_commands.command()
