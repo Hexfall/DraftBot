@@ -11,7 +11,7 @@ from Views.UserOptionChoiceView import UserOptionChoiceView
 
 class AddPotView(View):
     def __init__(self, guild: Guild, channel: InteractionChannel, user: discord.User):
-        super().__init__()
+        super().__init__(timeout=60*60*24*7)
         self.user = user
         with OptionsModel(guild, channel) as options_model:
             options = options_model.get_available_add_options()

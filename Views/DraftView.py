@@ -11,7 +11,7 @@ DEFAULT_SELECT = 3
 
 class DraftView(View):
     def __init__(self, guild: discord.Guild, channel: InteractionChannel):
-        super().__init__()
+        super().__init__(timeout=60*60*24*7)
         self.guild = guild
         self.channel = channel
         

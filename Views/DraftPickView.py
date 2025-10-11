@@ -7,7 +7,7 @@ from Views.UserOptionChoiceView import UserOptionChoiceView
 
 class DraftPickView(View):
     def __init__(self, user: discord.Member, options: list[str]):
-        super().__init__()
+        super().__init__(timeout=60*60*24*7)
         self.user = user
         self.option_select = UserOptionChoiceView(self, options + ["Mulligan"], row=1)
         self.option_select.callback = self.__callback

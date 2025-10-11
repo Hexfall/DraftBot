@@ -127,6 +127,8 @@ async def choose_phase(interaction: Interaction, users: list[discord.Member], op
             pick_view.callback = callback
             await user.send("Select your pick", view=pick_view)
             draft_message += f"- {user.mention}:\n  - " + "\n  - ".join(user_options) + "\n"
+        if options_per_player !=  1:
+            await interaction.followup.send(draft_message)
             
         options_per_player -= 1
         for lock in locks.values():

@@ -13,7 +13,7 @@ from Views.UserOptionChoiceView import UserOptionChoiceView
 
 class OptionsView(View):
     def __init__(self, guild: Guild, channel: Optional[InteractionChannel] = None):
-        super().__init__()
+        super().__init__(timeout=60*60*24*7)
         self.message: Optional[Message] = None
         
         self.preset: Select = None
@@ -53,13 +53,15 @@ class OptionsView(View):
         
     async def preset_callback(self, interaction: Interaction):
         self.use_preset(self.preset.values[0])
-        self.option.update_options(self._options)
+        self.option.options = self._options
+        self.option.update_options()
         await self.update_message(interaction)
         await interaction.response.edit_message(view=self)
     
     async def option_callback(self, interaction: Interaction):
         self.remove_option(self.option.option_select.values[0])
-        self.option.update_options(self._options)
+        self.option.options = self._options
+        self.option.update_options()
         await self.update_message(interaction)
         await interaction.response.edit_message(view=self)
 
