@@ -24,14 +24,14 @@ async def set_server_options(interaction: Interaction) -> None:
 async def get_pot(interaction: Interaction, private: bool = True):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         pot = options_model.get_pot()
-    await interaction.response.send_message("\n- ".join(["Current pot:"] + pot), ephemeral=private)
+    await interaction.response.send_message("\n- ".join([f"There are currently {len(pot)} options in the pot:"] + pot), ephemeral=private)
 
 
 @app_commands.command(name="show_bans")
 async def get_bans(interaction: Interaction, private: bool = True):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         bans = options_model.get_bans()
-    await interaction.response.send_message("\n- ".join(["Current bans:"] + bans), ephemeral=private)
+    await interaction.response.send_message("\n- ".join([f"There are currently {len(bans)} bans:"] + bans), ephemeral=private)
 
 
 @app_commands.command()
