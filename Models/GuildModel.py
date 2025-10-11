@@ -32,7 +32,7 @@ class GuildModel(ModelBase):
         self.data["default_options"] = sorted(presets[name], key=lambda x: x.lower())
     
     def add_option(self, option: str):
-        if not option in self.get_default_options():
+        if not option in self.get_options():
             self.data["default_options"].append(option)
             self.data["default_options"].sort(key=lambda x: x.lower())
     
