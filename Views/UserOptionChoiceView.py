@@ -1,15 +1,17 @@
 from math import ceil
+from typing import Optional
 
-from discord import ButtonStyle, Interaction, SelectOption
+from discord import ButtonStyle, Interaction, SelectOption, User
 from discord.ui import View, Select, Button
 
 MAX_OPTIONS = 25
 
 
 class UserOptionChoiceView:
-    def __init__(self, parent_view: View, options: list[str], option_placeholder: str = "Choose option...", row: int = 0):
+    def __init__(self, parent_view: View, options: list[str], option_placeholder: str = "Choose option...", row: int = 0, owner: Optional[User] = None):
         self.parent = parent_view
         self.options = options
+        self.owner = owner
         
         self.page: int = 0
         self.buttons_visible: bool = False
@@ -46,10 +48,16 @@ class UserOptionChoiceView:
         await interaction.response.edit_message(view=self.parent)
 
     async def next_callback(self, interaction: Interaction):
-        await self.change_page(1, interaction)
+        if interaction.user == self.owner:
+            await self.change_page(1, interaction)
+        else:
+            await interaction.response.send_message("This isn't your pick. Wait your turn.", ephemeral=True)
 
     async def prev_callback(self, interaction: Interaction):
-        await self.change_page(-1, interaction)
+        if interaction.user == self.owner:
+            await self.change_page(-1, interaction)
+        else:
+            await interaction.response.send_message("This isn't your pick. Wait your turn.", ephemeral=True)
 
     def toggle_buttons(self):
         if self.buttons_visible:

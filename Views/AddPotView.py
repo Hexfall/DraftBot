@@ -15,7 +15,7 @@ class AddPotView(View):
         self.user = user
         with OptionsModel(guild, channel) as options_model:
             options = options_model.get_available_add_options()
-        self.option_select = UserOptionChoiceView(self, options, row=1)
+        self.option_select = UserOptionChoiceView(self, options, row=1, owner=user)
         self.option_select.callback = self.__callback
         self.option_select.page_display.style = discord.ButtonStyle.green
     
