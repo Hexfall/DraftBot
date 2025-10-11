@@ -1,17 +1,16 @@
 from asyncio import Lock
-from importlib.resources import contents
 from random import shuffle
 from typing import Any
 
 import discord
-from discord import app_commands, Interaction, Guild
+from discord import app_commands, Interaction
 
-from Models.ModelBase import InteractionChannel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
 from Views.AddPotView import AddPotView
 from Views.DraftPickView import DraftPickView
 from Views.DraftView import DraftView
+from Views.EditBansView import EditBansView
 from Views.OptionsView import OptionsView
 
 
@@ -46,7 +45,7 @@ async def edit_pot(interaction: Interaction):
 
 @app_commands.command()
 async def edit_bans(interaction: Interaction):
-    pass
+    await interaction.response.send_message("Edit bans", view=EditBansView(interaction.guild, interaction.channel), ephemeral=True)
 
 
 @app_commands.command()
