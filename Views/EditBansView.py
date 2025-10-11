@@ -37,7 +37,7 @@ class EditBansView(View):
             options_model.add_ban(option)
         self.update_options()
         await interaction.response.edit_message(view=self)
-        await interaction.followup.send(f"{interaction.user.mention} banned {option}.")
+        await interaction.followup.send(f"{interaction.user.mention} banned *{option}*.")
     
     async def __rem_callback(self, interaction: Interaction):
         option = self.banned_options.get_option()
@@ -45,4 +45,4 @@ class EditBansView(View):
             options_model.remove_ban(option)
         self.update_options()
         await interaction.response.edit_message(view=self)
-        await interaction.followup.send(f"{interaction.user.mention} unbanned {option}.")
+        await interaction.followup.send(f"{interaction.user.mention} unbanned *{option}*.")

@@ -37,7 +37,7 @@ class EditPotView(View):
             options_model.add_pot(option)
         self.update_options()
         await interaction.response.edit_message(view=self)
-        await interaction.followup.send(f"{interaction.user.mention} added {option} to the pot.")
+        await interaction.followup.send(f"{interaction.user.mention} added *{option}* to the pot.")
 
     async def __rem_callback(self, interaction: Interaction):
         option = self.pot_options.get_option()
@@ -45,4 +45,4 @@ class EditPotView(View):
             options_model.remove_pot(option)
         self.update_options()
         await interaction.response.edit_message(view=self)
-        await interaction.followup.send(f"{interaction.user.mention} removed {option} from the pot.")
+        await interaction.followup.send(f"{interaction.user.mention} removed *{option}* from the pot.")

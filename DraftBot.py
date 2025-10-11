@@ -71,7 +71,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
     for user in ban_queue:
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has banned {option}")
+            await interaction.response.send_message(content=f"{interaction.user.mention} has banned *{option}*")
             lock.release()
         await lock.acquire()
         ban_view = AddBanView(interaction.guild, interaction.channel, user)
@@ -88,7 +88,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     for user in pot_queue:
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has added {option} to the pot")
+            await interaction.response.send_message(content=f"{interaction.user.mention} has added *{option}* to the pot")
             lock.release()
         await lock.acquire()
         pot_view = AddPotView(interaction.guild, interaction.channel, user)
