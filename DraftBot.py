@@ -81,9 +81,9 @@ async def clear_pot(interaction: Interaction):
 async def draft(interaction: Interaction):
     async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
         await interaction.response.defer()
-        with OptionsModel(interaction.guild, interaction.channel) as options_model:
-            options_model.clear_bans()
-            options_model.clear_pot()
+        #with OptionsModel(interaction.guild, interaction.channel) as options_model:
+        #    options_model.clear_bans()
+        #    options_model.clear_pot()
         await ban_phase(interaction, users, bans)
         await pick_phase(interaction, users, picks)
         await choose_phase(interaction, users, options)
