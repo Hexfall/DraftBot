@@ -163,17 +163,6 @@ def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
     return ret, l
 
 
-@app_commands.command()
-async def ban(interaction: Interaction):
-    async def callback(interaction: Interaction, option: str):
-        s = f"{interaction.user.mention} has banned {option}"
-        await interaction.response.edit_message(content=s, view=None)
-        await interaction.followup.send(s)
-    v = AddBanView(interaction.guild, interaction.channel, interaction.user)
-    v.callback = callback
-    await interaction.response.send_message("Ban", view=v)
-
-
 class DraftBot(discord.Client):
     def __init__(self, intents: discord.Intents = discord.Intents.default()):
         super().__init__(intents=intents)

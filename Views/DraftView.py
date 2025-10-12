@@ -1,11 +1,8 @@
-from asyncio import sleep
-
 import discord
 from discord import ButtonStyle, SelectOption, Interaction
 from discord.ui import View, UserSelect, Button, Select
 
 from Models.ModelBase import InteractionChannel
-
 
 DEFAULT_SELECT = 3
 
