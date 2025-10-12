@@ -38,12 +38,12 @@ async def _send_pot(interaction: Interaction, private: bool):
     await _send_list(interaction, private, f"There are currently {len(pot)} options in the pot:", pot)
         
 
-@app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot.")
+@app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot. Only visible to you, unless specified as public.")
 async def get_pot(interaction: Interaction, private: bool = True):
     await _send_pot(interaction, private)
 
 
-@app_commands.command(name="show_bans", description="Sends a message with a list of options currently banned.")
+@app_commands.command(name="show_bans", description="Sends a message with a list of options currently banned. Only visible to you, unless specified as public.")
 async def get_bans(interaction: Interaction, private: bool = True):
     await _send_bans(interaction, private)
 
