@@ -63,6 +63,20 @@ async def edit_bans(interaction: Interaction):
     await interaction.response.send_message("Edit bans", view=EditBansView(interaction.guild, interaction.channel), ephemeral=True)
 
 
+@app_commands.command(description="")
+async def clear_bans(interaction: Interaction):
+    with OptionsModel(interaction.guild, interaction.channel) as options_model:
+        options_model.clear_bans()
+    await interaction.response.send_message(f"{interaction.user.mention} has cleared the bans list.")
+
+
+@app_commands.command(description="")
+async def clear_pot(interaction: Interaction):
+    with OptionsModel(interaction.guild, interaction.channel) as options_model:
+        options_model.clear_pot()
+    await interaction.response.send_message(f"{interaction.user.mention} has cleared the pot.")
+
+
 @app_commands.command(description="Gives a view for starting a draft, allowing for changing draft settings beforehand.")
 async def draft(interaction: Interaction):
     async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
@@ -175,6 +189,8 @@ class DraftBot(discord.Client):
         self.tree.add_command(edit_options)
         self.tree.add_command(edit_pot)
         self.tree.add_command(edit_bans)
+        self.tree.add_command(clear_pot)
+        self.tree.add_command(clear_bans)
         self.tree.add_command(draft)
         # Sync the application command with Discord.
         await self.tree.sync()
