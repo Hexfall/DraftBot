@@ -15,7 +15,7 @@ from Views.EditPotView import EditPotView
 from Views.OptionsView import OptionsView
 
 
-@app_commands.command(name="default_server_options", description="Changes the default options that are used in new threads/channels")
+@app_commands.command(name="edit_default_server_options", description="Changes the default options that are used in new threads/channels")
 async def set_server_options(interaction: Interaction) -> None:
     await interaction.response.send_message("Server default options", view=OptionsView(interaction.guild), ephemeral=True)
 
@@ -38,32 +38,32 @@ async def _send_pot(interaction: Interaction, private: bool):
     await _send_list(interaction, private, f"There are currently {len(pot)} options in the pot:", pot)
         
 
-@app_commands.command(name="show_pot")
+@app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot.")
 async def get_pot(interaction: Interaction, private: bool = True):
     await _send_pot(interaction, private)
 
 
-@app_commands.command(name="show_bans")
+@app_commands.command(name="show_bans", description="Sends a message with a list of options currently banned.")
 async def get_bans(interaction: Interaction, private: bool = True):
     await _send_bans(interaction, private)
 
 
-@app_commands.command()
+@app_commands.command(name="edit_options", description="Changes the options that are used in this thread/channel")
 async def edit_options(interaction: Interaction):
     await interaction.response.send_message("Draft options", view=OptionsView(interaction.guild, interaction.channel), ephemeral=True)
     
     
-@app_commands.command()
+@app_commands.command(description="Gives a display for moving options to and from the pot.")
 async def edit_pot(interaction: Interaction):
     await interaction.response.send_message("Edit pot", view=EditPotView(interaction.guild, interaction.channel), ephemeral=True)
 
 
-@app_commands.command()
+@app_commands.command(description="Gives a display for adding and removing options from the banned list.")
 async def edit_bans(interaction: Interaction):
     await interaction.response.send_message("Edit bans", view=EditBansView(interaction.guild, interaction.channel), ephemeral=True)
 
 
-@app_commands.command()
+@app_commands.command(description="Gives a view for starting a draft, allowing for changing draft settings beforehand.")
 async def draft(interaction: Interaction):
     async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
         await interaction.response.defer()
@@ -176,7 +176,6 @@ class DraftBot(discord.Client):
         self.tree.add_command(edit_pot)
         self.tree.add_command(edit_bans)
         self.tree.add_command(draft)
-        self.tree.add_command(ban)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
