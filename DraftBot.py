@@ -38,12 +38,12 @@ async def _send_pot(interaction: Interaction, private: bool):
     await _send_list(interaction, private, f"There are currently {len(pot)} options in the pot:", pot)
         
 
-@app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot. Only visible to you, unless specified as public.")
+@app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot. Visible only to you by default.")
 async def get_pot(interaction: Interaction, private: bool = True):
     await _send_pot(interaction, private)
 
 
-@app_commands.command(name="show_bans", description="Sends a message with a list of options currently banned. Only visible to you, unless specified as public.")
+@app_commands.command(name="show_bans", description="Sends a message with a list of banned options. Visible only to you by default.")
 async def get_bans(interaction: Interaction, private: bool = True):
     await _send_bans(interaction, private)
 
@@ -63,14 +63,14 @@ async def edit_bans(interaction: Interaction):
     await interaction.response.send_message("Edit bans", view=EditBansView(interaction.guild, interaction.channel), ephemeral=True)
 
 
-@app_commands.command(description="")
+@app_commands.command(description="Clears the list of banned options.")
 async def clear_bans(interaction: Interaction):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         options_model.clear_bans()
     await interaction.response.send_message(f"{interaction.user.mention} has cleared the bans list.")
 
 
-@app_commands.command(description="")
+@app_commands.command(description="Clears the list of options in the pot.")
 async def clear_pot(interaction: Interaction):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         options_model.clear_pot()
