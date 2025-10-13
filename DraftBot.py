@@ -79,14 +79,17 @@ async def clear_pot(interaction: Interaction):
 
 @app_commands.command(description="Gives a view for starting a draft, allowing for changing draft settings beforehand.")
 async def draft(interaction: Interaction):
-    async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int):
+    async def callback(interaction: Interaction, users: list[discord.Member], bans: int, picks: int, options: int, clear_bans: bool = False, clear_picks: bool = False, forgo_picks: bool = False):
         await interaction.response.defer()
-        #with OptionsModel(interaction.guild, interaction.channel) as options_model:
-        #    options_model.clear_bans()
-        #    options_model.clear_pot()
+        with OptionsModel(interaction.guild, interaction.channel) as options_model:
+            if clear_bans:
+                options_model.clear_bans()
+            if clear_picks:
+                options_model.clear_pot()
         await ban_phase(interaction, users, bans)
-        await pick_phase(interaction, users, picks)
-        await choose_phase(interaction, users, options)
+        if not forgo_picks:
+            await pick_phase(interaction, users, picks)
+        await choose_phase(interaction, users, options, not forgo_picks)
     v = DraftView(interaction.guild, interaction.channel)
     v.callback = callback
     await interaction.response.send_message("Draft", view=v, ephemeral=True)
@@ -128,7 +131,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     await _send_pot(interaction, False)
     
 
-async def choose_phase(interaction: Interaction, users: list[Member], options_per_player: int):
+async def choose_phase(interaction: Interaction, users: list[Member], options_per_player: int, use_pot: bool = True):
     user_picks: dict[discord.Member, str] = {}
     locks: dict[int, Lock] = {}
     for user in users:
@@ -139,9 +142,12 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
     while any([p == "Mulligan" for p in user_picks.values()]):
         draft_message = "Draft step in progress. Players have been given the following options:\n"
         with OptionsModel(interaction.guild, interaction.channel) as options_model:
-            options = options_model.get_shuffled_pot(*user_picks.values())
+            if use_pot:
+                options = options_model.get_shuffled_pot(*user_picks.values())
+            else:
+                options = options_model.get_shuffled_options(*user_picks.values())
         for user in users:
-            user_options = [options.pop() for _ in range(options_per_player)]
+            user_options = sorted([options.pop() for _ in range(options_per_player)])
             if options_per_player == 1:
                 user_picks[user] = user_options[0]
             if user_picks[user] != "Mulligan":

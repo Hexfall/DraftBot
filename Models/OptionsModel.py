@@ -102,9 +102,19 @@ class OptionsModel(ModelBase):
             except ValueError:
                 pass
         return l
-    
+
     def get_shuffled_pot(self, *exclude: str) -> list[str]:
         pot = self.get_pot(*exclude)
+        shuffle(pot)
+        return pot
+
+    def get_shuffled_options(self, *exclude: str) -> list[str]:
+        pot = self.get_unbanned_options()
+        for e in exclude:
+            try:
+                pot.remove(e)
+            except ValueError:
+                pass
         shuffle(pot)
         return pot
     
