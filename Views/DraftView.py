@@ -142,8 +142,14 @@ class DraftView(View):
         
         s += f"## Settings\n"
         s += f"**Bans per player:** {self.get_bans_per_player()}\n"
-        s += f"**Picks per player:** {self.get_picks_per_player()}\n"
+        if not self.forgo_pot_button.value:
+            s += f"**Picks per player:** {self.get_picks_per_player()}\n"
         s += f"**Options per player:** {self.get_options_per_player()}\n"
+        s += f"**Forgo picks and use all options:** {'yes' if self.forgo_pot_button.value else 'no'}\n"
+        s += f"**Clear bans:** {'yes' if self.clear_bans_button.value else 'no'}\n"
+        if not self.forgo_pot_button.value:
+            s += f"**Clear pot:** {'yes' if self.clear_pot_button.value else 'no'}\n"
+        
         
         s += "\n- ".join(["## Players"] + list(map(lambda x: x.mention, self.get_users())))
         
