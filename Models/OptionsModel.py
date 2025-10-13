@@ -1,4 +1,5 @@
-from random import shuffle
+from datetime import datetime
+from random import shuffle, seed
 from typing import Optional
 
 from discord import Guild
@@ -105,6 +106,7 @@ class OptionsModel(ModelBase):
 
     def get_shuffled_pot(self, *exclude: str) -> list[str]:
         pot = self.get_pot(*exclude)
+        seed(datetime.now().timestamp())
         shuffle(pot)
         return pot
 
@@ -115,6 +117,7 @@ class OptionsModel(ModelBase):
                 pot.remove(e)
             except ValueError:
                 pass
+        seed(datetime.now().timestamp())
         shuffle(pot)
         return pot
     
