@@ -1,5 +1,6 @@
 from asyncio import Lock
-from random import shuffle
+from datetime import datetime
+from random import shuffle, seed, randint
 from typing import Any
 
 import discord
@@ -183,6 +184,13 @@ def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
         else:
             ret += l[::-1]
     return ret, l
+
+
+@app_commands.command(name="random_number", description="Generates any amount of random numbers.")
+async def random_number(interaction: Interaction, numbers: int = 1, min_value: int = 1, max_value: int = 8):
+    seed(datetime.now().timestamp())
+    nums = [str(randint(min_value, max_value)) for _ in range(numbers)]
+    await interaction.response.send_message("\n- ".join([f"{interaction.user.mention} has generated {numbers} random numbers between {min_value} and {max_value}:"] + nums))
 
 
 class DraftBot(discord.Client):
