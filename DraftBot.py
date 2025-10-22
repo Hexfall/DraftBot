@@ -101,7 +101,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
     if bans != 0:
         await interaction.followup.send("Beginning banning phase. Banning will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
-    for user in ban_queue:
+    for i, user in enumerate(ban_queue):
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
             await interaction.response.send_message(content=f"{interaction.user.mention} has banned *{option}*")
@@ -109,7 +109,9 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
         await lock.acquire()
         ban_view = AddBanView(interaction.guild, interaction.channel, user)
         ban_view.callback = callback
-        await interaction.followup.send(f"It is your turn to ban, {user.mention}", view=ban_view)
+        isare = "is" if i == len(ban_queue) - 1 else "are"
+        plural = "" if i == len(ban_queue) - 1 else "s"
+        await interaction.followup.send(f"It is your turn to ban, {user.mention}. There {isare} {len(ban_queue) - i} ban{plural} left.", view=ban_view)
     await lock.acquire()
     await _send_bans(interaction, False)
 
@@ -119,7 +121,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     if picks != 0:
         await interaction.followup.send("Beginning picking phase. Picks will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
-    for user in pot_queue:
+    for i, user in enumerate(pot_queue):
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
             await interaction.response.send_message(content=f"{interaction.user.mention} has added *{option}* to the pot")
@@ -127,7 +129,9 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
         await lock.acquire()
         pot_view = AddPotView(interaction.guild, interaction.channel, user)
         pot_view.callback = callback
-        await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}", view=pot_view)
+        isare = "is" if i == len(pot_queue) - 1 else "are"
+        plural = "" if i == len(pot_queue) - 1 else "s"
+        await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}. There {isare} {len(pot_queue) - i} pick{plural} left.", view=pot_view)
     await lock.acquire()
     await _send_pot(interaction, False)
     
@@ -139,6 +143,8 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
         user_picks[user] = "Mulligan"
         locks[user.id] = Lock()
         await locks[user.id].acquire()
+    message: discord.Message = None
+    draft_message: str = ""
         
     while any([p == "Mulligan" for p in user_picks.values()]):
         draft_message = "Draft step in progress. Players have been given the following options:\n"
@@ -152,20 +158,22 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
             if options_per_player == 1:
                 user_picks[user] = user_options[0]
             if user_picks[user] != "Mulligan":
-                draft_message += f"- {user.mention}: {user_picks[user]}\n"
+                draft_message += f"- {user.mention} :white_check_mark:: {user_picks[user]}\n"
                 locks[user.id].release()
                 continue
             
             async def callback(interaction: Interaction, option: str):
                 await interaction.response.edit_message(content="Choice registered", view=None)
                 user_picks[interaction.user] = option
+                text = message.content.replace(f"{interaction.user.mention} :x:", f"{interaction.user.mention} :white_check_mark:")
+                await message.edit(content=text)
                 locks[interaction.user.id].release()
             pick_view = DraftPickView(user, user_options)
             pick_view.callback = callback
             await user.send("Select your pick", view=pick_view)
-            draft_message += f"- {user.mention}:\n  - " + "\n  - ".join(user_options) + "\n"
+            draft_message += f"- {user.mention} :x::\n  - " + "\n  - ".join(user_options) + "\n"
         if options_per_player !=  1:
-            await interaction.followup.send(draft_message)
+            message = await interaction.followup.send(draft_message)
             
         options_per_player -= 1
         for lock in locks.values():
@@ -208,6 +216,7 @@ class DraftBot(discord.Client):
         self.tree.add_command(clear_pot)
         self.tree.add_command(clear_bans)
         self.tree.add_command(draft)
+        self.tree.add_command(random_number)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
