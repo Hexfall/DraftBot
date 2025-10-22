@@ -144,7 +144,6 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
         locks[user.id] = Lock()
         await locks[user.id].acquire()
     message: discord.Message = None
-    draft_message: str = ""
         
     while any([p == "Mulligan" for p in user_picks.values()]):
         draft_message = "Draft step in progress. Players have been given the following options:\n"
@@ -155,7 +154,7 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
                 options = options_model.get_shuffled_options(*user_picks.values())
         for user in users:
             user_options = sorted([options.pop() for _ in range(options_per_player)])
-            if options_per_player == 1:
+            if options_per_player == 1 and user_picks[user] == "Mulligan":
                 user_picks[user] = user_options[0]
             if user_picks[user] != "Mulligan":
                 draft_message += f"- {user.mention} :white_check_mark:: {user_picks[user]}\n"
