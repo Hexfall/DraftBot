@@ -24,7 +24,10 @@ async def set_server_options(interaction: Interaction) -> None:
 async def _send_list(interaction: Interaction, private: bool, header_message: str, items: list[str]):
     if not interaction.response.is_done():
         await interaction.response.defer()
-    await interaction.followup.send("\n- ".join([header_message] + items), ephemeral=private)
+    if private:
+        await interaction.followup.send("\n- ".join([header_message] + items), ephemeral=True)
+    else:
+        await interaction.channel.send("\n- ".join([header_message] + items))
 
 
 async def _send_bans(interaction: Interaction, private: bool):
@@ -109,9 +112,19 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
         await lock.acquire()
         ban_view = AddBanView(interaction.guild, interaction.channel, user)
         ban_view.callback = callback
-        isare = "is" if i == len(ban_queue) - 1 else "are"
-        plural = "" if i == len(ban_queue) - 1 else "s"
-        await interaction.followup.send(f"It is your turn to ban, {user.mention}. There {isare} {len(ban_queue) - i} ban{plural} left.", view=ban_view)
+        ms_str = f"It is your turn to ban, {user.mention}.\n"
+        if i == len(ban_queue) - 1:
+            ms_str += "This is the final ban."
+        else:
+            isare = "is" if i == len(ban_queue) - 1 else "are"
+            plural = "" if i == len(ban_queue) - 1 else "s"
+            ms_str += f"There {isare} {len(ban_queue) - i} ban{plural} left.\n"
+            remaining = ban_queue[i:].count(user)
+            if remaining == 1:
+                ms_str += "This is your last ban."
+            else:
+                ms_str += f"You have {remaining} remaining bans.\n"
+        await interaction.channel.send(ms_str, view=ban_view)
     await lock.acquire()
     await _send_bans(interaction, False)
 
@@ -129,9 +142,19 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
         await lock.acquire()
         pot_view = AddPotView(interaction.guild, interaction.channel, user)
         pot_view.callback = callback
-        isare = "is" if i == len(pot_queue) - 1 else "are"
-        plural = "" if i == len(pot_queue) - 1 else "s"
-        await interaction.followup.send(f"It is your turn to add an option to the pot, {user.mention}. There {isare} {len(pot_queue) - i} pick{plural} left.", view=pot_view)
+        ms_str = f"It is your turn to pick, {user.mention}.\n"
+        if i == len(pot_queue) - 1:
+            ms_str += "This is the final pick."
+        else:
+            isare = "is" if i == len(pot_queue) - 1 else "are"
+            plural = "" if i == len(pot_queue) - 1 else "s"
+            ms_str += f"There {isare} {len(pot_queue) - i} pick{plural} left.\n"
+            remaining = pot_queue[i:].count(user)
+            if remaining == 1:
+                ms_str += "This is your last pick."
+            else:
+                ms_str += f"You have {remaining} remaining picks.\n"
+        await interaction.channel.send(ms_str, view=pot_view)
     await lock.acquire()
     await _send_pot(interaction, False)
     
@@ -172,7 +195,7 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
             await user.send("Select your pick", view=pick_view)
             draft_message += f"- {user.mention} :x::\n  - " + "\n  - ".join(user_options) + "\n"
         if options_per_player !=  1:
-            message = await interaction.followup.send(draft_message)
+            message = await interaction.channel.send(draft_message)
             
         options_per_player -= 1
         for lock in locks.values():
