@@ -1,0 +1,62 @@
+{
+"Cultural": [
+"Antananarivo",
+"Ayutthaya",
+"Caguana",
+"Kumasi",
+"Mohenjo-Daro",
+"Nan Madol",
+"Rapa Nui",
+"Vilnius"
+],
+"Industrial": [
+"Auckland",
+"Brussels",
+"Buenos Aires",
+"Cardiff",
+"Hong Kong",
+"Johannesburg",
+"Mexico City",
+"Singapore"
+],
+"Militaristic": [
+"Akkad",
+"Granada",
+"Kabul",
+"Lahore",
+"Ngazargamu",
+"Preslav",
+"Valletta",
+"Wolin"
+],
+"Religious": [
+"Armagh",
+"Chinguetti",
+"Jerusalem",
+"Kandy",
+"La Venta",
+"Nazca",
+"Vatican City",
+"Yerevan"
+],
+"Scientific": [
+"Anshan",
+"Bologna",
+"Fez",
+"Geneva",
+"Hattusa",
+"Mitla",
+"Nalanda",
+"Taruga"
+],
+"Trade": [
+"Bandar Brunei",
+"Cahokia",
+"Hunza",
+"Mogadishu",
+"Muscat",
+"Samarkand",
+"Venice",
+"Zanzibar"
+]
+}

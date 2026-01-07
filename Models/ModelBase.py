@@ -22,8 +22,12 @@ class ModelBase:
     def __init__(self, guild: Guild, channel: Optional[InteractionChannel], file_name: str) -> None:
         self.guild = guild
         self.preset_path = data_path.joinpath("presets.json")
+        self.cs_path = data_path.joinpath("city_states.json")
         if channel is None:
-            self.path = data_path.joinpath(f"{self.guild.id} - {self.guild.name}")
+            if self.guild is None:
+                self.path = data_path
+            else:
+                self.path = data_path.joinpath(f"{self.guild.id} - {self.guild.name}")
         else:
             self.path = data_path.joinpath(f"{self.guild.id} - {self.guild.name}", f"{channel.id} - {channel.name}")
         self.file_path = self.path.joinpath(f"{file_name}.json")
