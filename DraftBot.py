@@ -6,6 +6,7 @@ from typing import Any
 import discord
 from discord import app_commands, Interaction, Member
 
+from Models.CityStateModel import CityStateModel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
 from Views.AddPotView import AddPotView
@@ -224,6 +225,37 @@ async def random_number(interaction: Interaction, numbers: int = 1, min_value: i
     await interaction.response.send_message("\n- ".join([f"{interaction.user.mention} has generated {numbers} random numbers between {min_value} and {max_value}:"] + nums))
 
 
+def city_state_message(city_states: dict[str, list[str]]) -> str:
+    s = ""
+    for k in sorted(city_states.keys()):
+        s += f"**{k}**:\n- " + "\n- ".join(city_states[k]) + "\n"
+    return s
+
+
+@app_commands.command(name="city_states", description="Generates any amount of unique city states for Civ 6.")
+async def city_states(interaction: Interaction, amount: int = 12):
+    with CityStateModel(interaction.guild) as city_state_model:
+        city_states = city_state_model.get_city_states(amount)
+    await interaction.response.send_message(f"{interaction.user} has generated {amount} random city states.\n{city_state_message(city_states)}")
+
+
+@app_commands.command(name="city_states_by_type", description="Generates unique city states for Civ 6 with ability to specify how many of each type.")
+async def city_states_by_type(interaction: Interaction, cultural: int = 2, industrial: int = 2, military: int = 2, religious: int = 2, scientific: int = 2, trade: int = 2):
+    with CityStateModel(interaction.guild) as city_state_model:
+        city_states = city_state_model.get_city_states_by_type(cultural, industrial, military, religious, scientific, trade)
+    amount = sum([cultural, industrial, military, religious, scientific, trade])
+    await interaction.response.send_message(f"{interaction.user} has generated {amount} random city states with type restrictions.\n{city_state_message(city_states)}")
+
+
+@app_commands.command(name="city_states_balanced", description="Generates unique city states for Civ 6 with an equal amount ot each type.")
+async def city_states_balanced(interaction: Interaction, amount_of_each_type: int = 2):
+    with CityStateModel(interaction.guild) as city_state_model:
+        types = len(city_state_model.data.keys())
+        city_states = city_state_model.get_city_states_by_type(*([amount_of_each_type] * types))
+    amount = amount_of_each_type * types
+    await interaction.response.send_message(f"{interaction.user} has generated {amount} random city states with type restrictions.\n{city_state_message(city_states)}")
+
+
 class DraftBot(discord.Client):
     def __init__(self, intents: discord.Intents = discord.Intents.default()):
         super().__init__(intents=intents)
@@ -240,6 +272,9 @@ class DraftBot(discord.Client):
         self.tree.add_command(clear_bans)
         self.tree.add_command(draft)
         self.tree.add_command(random_number)
+        self.tree.add_command(city_states)
+        self.tree.add_command(city_states_by_type)
+        self.tree.add_command(city_states_balanced)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
