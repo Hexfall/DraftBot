@@ -186,9 +186,10 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
             
             async def callback(interaction: Interaction, option: str):
                 await interaction.response.edit_message(content="Choice registered", view=None)
+                nonlocal draft_message
                 user_picks[interaction.user] = option
-                text = message.content.replace(f"{interaction.user.mention} :x:", f"{interaction.user.mention} :white_check_mark:")
-                await message.edit(content=text)
+                draft_message = draft_message.replace(f"{interaction.user.mention} :x:", f"{interaction.user.mention} :white_check_mark:")
+                await message.edit(content=draft_message)
                 locks[interaction.user.id].release()
             pick_view = DraftPickView(user, user_options)
             pick_view.callback = callback
