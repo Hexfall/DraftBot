@@ -228,7 +228,7 @@ async def random_number(interaction: Interaction, numbers: int = 1, min_value: i
 def city_state_message(city_states: dict[str, list[str]]) -> str:
     s = ""
     for k in sorted(city_states.keys()):
-        s += f"**{k}** ({len(k)}):\n- " + "\n- ".join(city_states[k]) + "\n"
+        s += f"**{k}** ({len(city_states[k])}):\n- " + "\n- ".join(city_states[k]) + "\n"
     return s
 
 
