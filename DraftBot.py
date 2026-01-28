@@ -103,7 +103,7 @@ async def draft(interaction: Interaction):
 async def ban_phase(interaction: Interaction, users: list[discord.Member], bans: int):
     ban_queue, order = snake_order(users, bans)
     if bans != 0:
-        await interaction.followup.send("Beginning banning phase. Banning will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
+        await interaction.channel.send("Beginning banning phase. Banning will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
     for i, user in enumerate(ban_queue):
         async def callback(interaction: Interaction, option: str):
@@ -133,7 +133,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
 async def pick_phase(interaction: Interaction, users: list[discord.Member], picks: int):
     pot_queue, order = snake_order(users, picks)
     if picks != 0:
-        await interaction.followup.send("Beginning picking phase. Picks will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
+        await interaction.channel.send("Beginning picking phase. Picks will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
     for i, user in enumerate(pot_queue):
         async def callback(interaction: Interaction, option: str):
