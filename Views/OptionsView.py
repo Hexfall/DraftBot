@@ -60,8 +60,7 @@ class OptionsView(View):
     
     async def option_callback(self, interaction: Interaction):
         self.remove_option(self.option.option_select.values[0])
-        self.option.options = self._options
-        self.option.update_options()
+        self.update_options()
         await self.update_message(interaction)
         await interaction.response.edit_message(view=self)
 
@@ -88,6 +87,10 @@ class OptionsView(View):
         with (GuildModel(self.guild) if self.channel is None else OptionsModel(self.guild, self.channel)) as model:
             model.remove_option(option)
             self._options = model.get_options()
+            
+    def update_options(self):
+        self.option.options = self._options
+        self.option.update_options()
 
 
 class AddOptionModal(Modal, title="Add Option"):
