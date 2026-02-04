@@ -48,13 +48,13 @@ class UserOptionChoiceView:
         await interaction.response.edit_message(view=self.parent)
 
     async def next_callback(self, interaction: Interaction):
-        if interaction.user == self.owner:
+        if self.owner is None or interaction.user == self.owner:
             await self.change_page(1, interaction)
         else:
             await interaction.response.send_message("This isn't your pick. Wait your turn.", ephemeral=True)
 
     async def prev_callback(self, interaction: Interaction):
-        if interaction.user == self.owner:
+        if self.owner is None or interaction.user == self.owner:
             await self.change_page(-1, interaction)
         else:
             await interaction.response.send_message("This isn't your pick. Wait your turn.", ephemeral=True)
