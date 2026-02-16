@@ -1,5 +1,6 @@
+import re
 from asyncio import Lock
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import shuffle, seed, randint
 from typing import Any
 
@@ -80,6 +81,37 @@ async def clear_pot(interaction: Interaction):
     with OptionsModel(interaction.guild, interaction.channel) as options_model:
         options_model.clear_pot()
     await interaction.response.send_message(f"{interaction.user.mention} has cleared the pot.")
+
+
+@app_commands.command(description="Starts a poll for a day to play. Defaults to a week starting next Monday. DD-MM-YYYY format.")
+async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
+    await interaction.response.defer()
+    if start_date == "":
+        day = datetime.now()
+        day.replace(hour=12, minute=0, second=0, microsecond=0)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+    else:
+        try:
+            day = datetime.strptime(start_date, "%d-%m-%Y")
+            day.replace(hour=12, minute=0, second=0, microsecond=0)
+        except ValueError:
+            await interaction.followup.send("Invalid date format. Expected DD-MM-YYYY.", ephemeral=True)
+            return
+        
+    number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+    
+    message_str = f"{interaction.user.mention} has started a poll for a day:\n"
+    for i in range(days):
+        message_str += f"\n{number_emojis[i]} {day.strftime('%A, %B %d')}"
+        day += timedelta(days=1)
+    
+    message_str += "\n\nCurrent winning option(s): None"
+    message_str += "\nUnique voters: 0"
+    
+    message = await interaction.followup.send(message_str)
+    for e in number_emojis[:days]:
+        await message.add_reaction(e)
 
 
 @app_commands.command(description="Gives a view for starting a draft, allowing for changing draft settings beforehand.")
@@ -240,7 +272,7 @@ async def city_states(interaction: Interaction, amount: int = 12):
 
 
 @app_commands.command(name="city_states_by_type", description="Generates unique city states for Civ 6 with ability to specify how many of each type.")
-async def city_states_by_type(interaction: Interaction, cultural: int = 2, industrial: int = 2, military: int = 2, religious: int = 2, scientific: int = 2, trade: int = 2):
+async def city_states_by_type(interaction: Interaction, cultural: int = 0, industrial: int = 0, military: int = 0, religious: int = 0, scientific: int = 0, trade: int = 0):
     with CityStateModel(interaction.guild) as city_state_model:
         city_states = city_state_model.get_city_states_by_type(cultural, industrial, military, religious, scientific, trade)
     amount = sum([cultural, industrial, military, religious, scientific, trade])
@@ -275,10 +307,41 @@ class DraftBot(discord.Client):
         self.tree.add_command(city_states)
         self.tree.add_command(city_states_by_type)
         self.tree.add_command(city_states_balanced)
+        self.tree.add_command(day_poll)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
     
     async def on_ready(self):
         print('Logged in as: {0} {1}'.format(self.user.name, self.user.id))
+
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
+        await self.on_reaction_update(reaction, user)
+    
+    
+    async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.User):
+        await self.on_reaction_update(reaction, user)
+    
+    
+    async def on_reaction_update(self, reaction: discord.Reaction, user: discord.User):
+        if user == self.user:  # Ignore bot's own reactions
+            return
+
+        poll_pattern = r"^<@\d+> has started a poll for a day:.*"
+        if reaction.message.author == self.user and re.match(poll_pattern, reaction.message.content):
+            await self.update_poll(reaction)
+        
+        
+    async def update_poll(self, reaction: discord.Reaction):
+        max_count = max([r.count for r in reaction.message.reactions])
+        options = [r for r in reaction.message.reactions if r.count == max_count]
+        user_set = set()
+        for re in reaction.message.reactions:
+            async for u in re.users():
+                user_set.add(u)
+        user_set.remove(self.user)
+        
+        end = f"\nCurrent winning option(s): {"".join([str(o) for o in options])}\nUnique voters: {len(user_set)}"
+        prev = "\n".join(reaction.message.content.split('\n')[:-2])
+        await reaction.message.edit(content=prev + end)
         
