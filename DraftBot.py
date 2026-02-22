@@ -46,11 +46,13 @@ async def _send_pot(interaction: Interaction, private: bool):
 
 @app_commands.command(name="show_pot", description="Sends a message with a list of options currently in the pot. Visible only to you by default.")
 async def get_pot(interaction: Interaction, private: bool = True):
+    await interaction.response.defer()
     await _send_pot(interaction, private)
 
 
 @app_commands.command(name="show_bans", description="Sends a message with a list of banned options. Visible only to you by default.")
 async def get_bans(interaction: Interaction, private: bool = True):
+    await interaction.response.defer()
     await _send_bans(interaction, private)
 
 
