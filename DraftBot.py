@@ -8,6 +8,7 @@ import discord
 from discord import app_commands, Interaction, Member
 
 from Models.CityStateModel import CityStateModel
+from Models.EmojiModel import EmojiModel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
 from Views.AddPotView import AddPotView
@@ -26,10 +27,11 @@ async def set_server_options(interaction: Interaction) -> None:
 async def _send_list(interaction: Interaction, private: bool, header_message: str, items: list[str]):
     if not interaction.response.is_done():
         await interaction.response.defer()
+    formatted = [f"{EmojiModel().get_emoji(i)} {i}" if EmojiModel().get_emoji(i) is not None else i for i in items]
     if private:
-        await interaction.followup.send("\n- ".join([header_message] + items), ephemeral=True)
+        await interaction.followup.send("\n- ".join([header_message] + formatted), ephemeral=True)
     else:
-        await interaction.channel.send("\n- ".join([header_message] + items))
+        await interaction.channel.send("\n- ".join([header_message] + formatted))
 
 
 async def _send_bans(interaction: Interaction, private: bool):
@@ -142,7 +144,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
     for i, user in enumerate(ban_queue):
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has banned *{option}*")
+            await interaction.response.send_message(content=f"{interaction.user.mention} has banned {EmojiModel().get_emoji(option)} *{option}*")
             lock.release()
         await lock.acquire()
         ban_view = AddBanView(interaction.guild, interaction.channel, user)
@@ -172,7 +174,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     for i, user in enumerate(pot_queue):
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has added *{option}* to the pot")
+            await interaction.response.send_message(content=f"{interaction.user.mention} has added {EmojiModel().get_emoji(option)} *{option}* to the pot")
             lock.release()
         await lock.acquire()
         pot_view = AddPotView(interaction.guild, interaction.channel, user)
@@ -215,7 +217,7 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
             if options_per_player == 1 and user_picks[user] == "Mulligan":
                 user_picks[user] = user_options[0]
             if user_picks[user] != "Mulligan":
-                draft_message += f"- {user.mention} :white_check_mark:: {user_picks[user]}\n"
+                draft_message += f"- {user.mention} :white_check_mark:: {EmojiModel().get_emoji(user_picks[user])} {user_picks[user]}\n"
                 locks[user.id].release()
                 continue
             
@@ -229,7 +231,7 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
             pick_view = DraftPickView(user, user_options)
             pick_view.callback = callback
             await user.send("Select your pick", view=pick_view)
-            draft_message += f"- {user.mention} :x::\n  - " + "\n  - ".join(user_options) + "\n"
+            draft_message += f"- {user.mention} :x::\n  - " + "\n  - ".join([f"{EmojiModel().get_emoji(opt)} {opt}" for opt in user_options]) + "\n"
         if options_per_player !=  1:
             message = await interaction.channel.send(draft_message)
             
@@ -237,7 +239,7 @@ async def choose_phase(interaction: Interaction, users: list[Member], options_pe
         for lock in locks.values():
             await lock.acquire()
     
-    await _send_list(interaction, False, "Draft complete. Results:", [f"{k.mention}: {v}" for k, v in user_picks.items()])
+    await _send_list(interaction, False, "Draft complete. Results:", [f"{k.mention}: {EmojiModel().get_emoji(v)} {v}" for k, v in user_picks.items()])
     
 
 def snake_order(items: list[Any], times) -> tuple[list[Any], list[Any]]:
