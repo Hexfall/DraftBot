@@ -4,6 +4,8 @@ from typing import Optional
 from discord import ButtonStyle, Interaction, SelectOption, User
 from discord.ui import View, Select, Button
 
+from Models.EmojiModel import EmojiModel
+
 MAX_OPTIONS = 25
 
 
@@ -74,7 +76,7 @@ class UserOptionChoiceView:
         if self.page * MAX_OPTIONS > len(self.options):
             self.page = len(self.options) // MAX_OPTIONS
         opts = self.options[self.page * MAX_OPTIONS: (self.page + 1) * MAX_OPTIONS]
-        self.option_select.options = [SelectOption(label=opt) for opt in opts]
+        self.option_select.options = [SelectOption(label=opt, emoji=EmojiModel().get_emoji(opt)) for opt in opts]
         if len(self.options) == 0:
             self.option_select.options = [SelectOption(label="No options")]
         if len(self.options) <= MAX_OPTIONS and self.buttons_visible:
@@ -86,3 +88,6 @@ class UserOptionChoiceView:
     
     def get_option(self) -> str:
         return self.option_select.values[0]
+    
+    def option_selected(self) -> bool:
+        return len(self.option_select.values) > 0
