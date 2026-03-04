@@ -89,7 +89,6 @@ async def clear_pot(interaction: Interaction):
 
 @app_commands.command(description="Starts a poll for a day to play. Defaults to a week starting next Monday. DD-MM-YYYY format.")
 async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
-    await interaction.response.defer()
     if start_date == "":
         day = datetime.now()
         day.replace(hour=12, minute=0, second=0, microsecond=0)
@@ -100,7 +99,7 @@ async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
             day = datetime.strptime(start_date, "%d-%m-%Y")
             day.replace(hour=12, minute=0, second=0, microsecond=0)
         except ValueError:
-            await interaction.followup.send("Invalid date format. Expected DD-MM-YYYY.", ephemeral=True)
+            await interaction.response.send_message("Invalid date format. Expected DD-MM-YYYY.", ephemeral=True)
             return
         
     number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
@@ -113,6 +112,7 @@ async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
     message_str += "\n\nCurrent winning option(s): None"
     message_str += "\nUnique voters: 0"
     
+    await interaction.response.defer()
     message = await interaction.followup.send(message_str)
     for e in number_emojis[:days]:
         await message.add_reaction(e)
