@@ -86,7 +86,8 @@ async def clear_pot(interaction: Interaction):
         options_model.clear_pot()
     await interaction.response.send_message(f"{interaction.user.mention} has cleared the pot.")
 
-
+@discord.app_commands.allowed_installs(guilds=True, users=True)
+@discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.command(description="Starts a poll for a day to play. Defaults to a week starting next Monday. DD-MM-YYYY format.")
 async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
     if start_date == "":
