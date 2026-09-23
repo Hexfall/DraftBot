@@ -1,6 +1,6 @@
 import re
 from asyncio import Lock
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from random import shuffle, seed, randint
 from typing import Any
 
@@ -86,10 +86,12 @@ async def clear_pot(interaction: Interaction):
         options_model.clear_pot()
     await interaction.response.send_message(f"{interaction.user.mention} has cleared the pot.")
 
+
 @discord.app_commands.allowed_installs(guilds=True, users=True)
 @discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.command(description="Starts a poll for a day to play. Defaults to a week starting next Monday. DD-MM-YYYY format.")
-async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
+@app_commands.command(
+    description="Starts a poll for a day to play. Defaults to a week starting next Monday. DD-MM-YYYY format.")
+async def day_poll(interaction: Interaction, days: int = 7, start_date: str = "", message: str = None):
     if start_date == "":
         day = datetime.now()
         day.replace(hour=12, minute=0, second=0, microsecond=0)
@@ -102,20 +104,64 @@ async def day_poll(interaction: Interaction, days: int=7, start_date: str=""):
         except ValueError:
             await interaction.response.send_message("Invalid date format. Expected DD-MM-YYYY.", ephemeral=True)
             return
-        
+
     number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
-    
-    message_str = f"{interaction.user.mention} has started a poll for a day:\n"
+
+    if message is None:
+        message_str = f"{interaction.user.mention} has started a poll for a day:\n"
+    else:
+        message_str = message + "\n"
     for i in range(days):
         message_str += f"\n{number_emojis[i]} {day.strftime('%A, %B %d')}"
         day += timedelta(days=1)
-    
+
     message_str += "\n\nCurrent winning option(s): None"
     message_str += "\nUnique voters: 0"
-    
+
     await interaction.response.defer()
     message = await interaction.followup.send(message_str)
     for e in number_emojis[:days]:
+        await message.add_reaction(e)
+
+
+@discord.app_commands.allowed_installs(guilds=True, users=True)
+@discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.command(description="Starts a poll for a time of day to play. Defaults to 18 GMT today's time. DD-MM-YYYY format.")
+async def time_poll(interaction: Interaction, start_time: str="18:00", increments: int=60, amount: int=4, date: str="", message: str=None):
+    if not 0 < amount <= 10:
+        await interaction.response.send_message("Amount must be between 1 and 10.", ephemeral=True)
+        return
+
+    if date == "":
+        date = datetime.now(timezone.utc).strftime("%d-%m-%Y")
+
+    try:
+        time = datetime.strptime(f"{date} {start_time}", "%d-%m-%Y %H:%M")
+    except ValueError:
+        await interaction.response.send_message("Invalid date format. Expected DD-MM-YYYY.", ephemeral=True)
+        return
+
+    # Convert from local time to UTC
+    time = time.replace(tzinfo=None)
+    local_tz = datetime.now().astimezone().tzinfo
+    time = time.replace(tzinfo=timezone.utc).astimezone(local_tz)
+
+    number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+
+    if message is None:
+        message_str = f"{interaction.user.mention} has started a poll for a time:\n"
+    else:
+        message_str = message + "\n"
+    for i in range(amount):
+        message_str += f"\n{number_emojis[i]} <t:{time.strftime('%s')}:t>"
+        time += timedelta(minutes=increments)
+
+    message_str += "\n\nCurrent winning option(s): None"
+    message_str += "\nUnique voters: 0"
+
+    await interaction.response.defer()
+    message = await interaction.followup.send(message_str)
+    for e in number_emojis[:amount]:
         await message.add_reaction(e)
 
 
@@ -313,6 +359,7 @@ class DraftBot(discord.Client):
         self.tree.add_command(city_states_by_type)
         self.tree.add_command(city_states_balanced)
         self.tree.add_command(day_poll)
+        self.tree.add_command(time_poll)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
@@ -332,16 +379,17 @@ class DraftBot(discord.Client):
         if user == self.user:  # Ignore bot's own reactions
             return
 
-        poll_pattern = r"^<@\d+> has started a poll for a day:.*"
+        poll_pattern = r"[\S\s]*Unique voters: \d+$"
         if reaction.message.author == self.user and re.match(poll_pattern, reaction.message.content):
             await self.update_poll(reaction)
         
         
     async def update_poll(self, reaction: discord.Reaction):
-        max_count = max([r.count for r in reaction.message.reactions])
-        options = [r for r in reaction.message.reactions if r.count == max_count]
+        reactions = reaction.message.reactions[:]
+        max_count = max([r.count for r in reactions])
+        options = [r for r in reactions if r.count == max_count]
         user_set = set()
-        for re in reaction.message.reactions:
+        for re in reactions:
             async for u in re.users():
                 user_set.add(u)
         user_set.remove(self.user)
