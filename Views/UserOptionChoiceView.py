@@ -10,7 +10,7 @@ MAX_OPTIONS = 25
 
 
 class UserOptionChoiceView:
-    def __init__(self, parent_view: View, options: list[str], option_placeholder: str = "Choose option...", row: int = 0, owner: Optional[User] = None):
+    def __init__(self, parent_view: View, options: list[str], option_placeholder: str = "Choose option...", row: int = 0, owner: Optional[User] = None, max_values: int = 1):
         self.parent = parent_view
         self.options = options
         self.owner = owner
@@ -22,7 +22,7 @@ class UserOptionChoiceView:
             placeholder=option_placeholder,
             options=[],
             min_values=0,
-            max_values=1,
+            max_values=max_values,
             row=row,
         )
         self.option_select.callback = self.__callback

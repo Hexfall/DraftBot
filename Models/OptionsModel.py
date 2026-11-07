@@ -2,7 +2,7 @@ from datetime import datetime
 from random import shuffle, seed
 from typing import Optional
 
-from discord import Guild
+from discord import Guild, User
 
 from Models.GuildModel import GuildModel
 from Models.ModelBase import ModelBase, InteractionChannel
@@ -20,12 +20,12 @@ class OptionsModel(ModelBase):
     def get_options(self) -> list[str]:
         if not 'options' in self.data.keys():
             self._no_data()
-        return self.data['options']
+        return self.data['options'].copy()
     
     def get_bans(self) -> list[str]:
         if not 'bans' in self.data.keys():
             self.data['bans'] = []
-        return self.data['bans']
+        return self.data['bans'].copy()
     
     def get_pot(self, *exclude: str) -> list[str]:
         if not 'pot' in self.data.keys():
@@ -39,7 +39,7 @@ class OptionsModel(ModelBase):
         return pot
     
     def get_unbanned_options(self) -> list[str]:
-        opts = self.get_options().copy()
+        opts = self.get_options()
         for ban in self.get_bans():
             try:
                 opts.remove(ban)
@@ -126,3 +126,74 @@ class OptionsModel(ModelBase):
     
     def clear_pot(self) -> None:
         self.data['pot'] = []
+
+    def update_auto_actions(self, user: User, bans: list[str], picks: list[str]):
+        if not 'auto_actions' in self.data.keys():
+            self.data['auto_actions'] = {}
+        self.data['auto_actions'][str(user.id)] = {'bans': bans, 'picks': picks}
+
+    def add_auto_ban(self, user: User, ban: str):
+        if not 'auto_actions' in self.data.keys():
+            self.data['auto_actions'] = {}
+        if not str(user.id) in self.data['auto_actions'].keys():
+            self.data['auto_actions'][str(user.id)] = {'bans': [], 'picks': []}
+        if not ban in self.data['auto_actions'][str(user.id)]['bans']:
+            self.data['auto_actions'][str(user.id)]['bans'].append(ban)
+
+    def remove_auto_ban(self, user: User, ban: str):
+        if not 'auto_actions' in self.data.keys():
+            return
+        if not str(user.id) in self.data['auto_actions'].keys():
+            return
+        try:
+            self.data['auto_actions'][str(user.id)]['bans'].remove(ban)
+        except ValueError:
+            pass
+
+    def add_auto_pick(self, user: User, pick: str):
+        if not 'auto_actions' in self.data.keys():
+            self.data['auto_actions'] = {}
+        if not str(user.id) in self.data['auto_actions'].keys():
+            self.data['auto_actions'][str(user.id)] = {'bans': [], 'picks': []}
+        if not pick in self.data['auto_actions'][str(user.id)]['picks']:
+            self.data['auto_actions'][str(user.id)]['picks'].append(pick)
+
+    def remove_auto_pick(self, user: User, pick: str):
+        if not 'auto_actions' in self.data.keys():
+            return
+        if not str(user.id) in self.data['auto_actions'].keys():
+            return
+        try:
+            self.data['auto_actions'][str(user.id)]['picks'].remove(pick)
+        except ValueError:
+            pass
+
+    def get_auto_actions(self, user: User) -> dict[str, list[str]]:
+        if not 'auto_actions' in self.data.keys():
+            return {}
+        return self.data['auto_actions'].get(str(user.id), {})
+
+    def get_valid_auto_ban(self, user) -> str|None:
+        if not 'auto_actions' in self.data.keys():
+            return None
+        actions = self.data['auto_actions'].get(str(user.id), {})
+        if not 'bans' in actions.keys():
+            return None
+        for ban in actions['bans']:
+            if not ban in self.data['bans']:
+                return ban
+        return None
+
+    def get_valid_auto_pick(self, user) -> str|None:
+        if not 'auto_actions' in self.data.keys():
+            return None
+        actions = self.data['auto_actions'].get(str(user.id), {})
+        if not 'picks' in actions.keys():
+            return None
+        for pick in actions['picks']:
+            if not pick in self.data['pot'] and not pick in self.data['bans']:
+                return pick
+        return None
+
+    def clear_auto_actions(self):
+        self.data['auto_actions'] = {}

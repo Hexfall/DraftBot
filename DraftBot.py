@@ -12,6 +12,8 @@ from Models.EmojiModel import EmojiModel
 from Models.OptionsModel import OptionsModel
 from Views.AddBanView import AddBanView
 from Views.AddPotView import AddPotView
+from Views.AutoAddView import AutoAddView
+from Views.AutoBanView import AutoBanView
 from Views.DraftPickView import DraftPickView
 from Views.DraftView import DraftView
 from Views.EditBansView import EditBansView
@@ -189,11 +191,20 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
         await interaction.channel.send("Beginning banning phase. Banning will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
     for i, user in enumerate(ban_queue):
+        await lock.acquire()
+        with OptionsModel(interaction.guild, interaction.channel) as options_model:
+            auto_ban = options_model.get_valid_auto_ban(user)
+            if auto_ban is not None:
+                options_model.add_ban(auto_ban)
+                await interaction.channel.send(f"# {interaction.user.mention} has banned {EmojiModel().get_emoji(auto_ban)} *{auto_ban}*")
+                lock.release()
+                continue
+
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has banned {EmojiModel().get_emoji(option)} *{option}*")
+            await interaction.response.defer()
+            await interaction.channel.send(content=f"# {interaction.user.mention} has banned {EmojiModel().get_emoji(option)} *{option}*")
             lock.release()
-        await lock.acquire()
         ban_view = AddBanView(interaction.guild, interaction.channel, user)
         ban_view.callback = callback
         ms_str = f"It is your turn to ban, {user.mention}.\n"
@@ -219,11 +230,20 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
         await interaction.channel.send("Beginning picking phase. Picks will occur in a snake-draft format using the following order:\n- " + "\n- ".join([user.mention for user in order]))
     lock = Lock()
     for i, user in enumerate(pot_queue):
+        await lock.acquire()
+        with OptionsModel(interaction.guild, interaction.channel) as options_model:
+            auto_pick = options_model.get_valid_auto_pick(user)
+            if auto_pick is not None:
+                options_model.add_pot(auto_pick)
+                await interaction.channel.send(f"# {interaction.user.mention} has added {EmojiModel().get_emoji(auto_pick)} *{auto_pick}* to the pot")
+                lock.release()
+                continue
+
         async def callback(interaction: Interaction, option: str):
             await interaction.message.delete()
-            await interaction.response.send_message(content=f"{interaction.user.mention} has added {EmojiModel().get_emoji(option)} *{option}* to the pot")
+            await interaction.response.defer()
+            await interaction.channel.send(content=f"# {interaction.user.mention} has added {EmojiModel().get_emoji(option)} *{option}* to the pot")
             lock.release()
-        await lock.acquire()
         pot_view = AddPotView(interaction.guild, interaction.channel, user)
         pot_view.callback = callback
         ms_str = f"It is your turn to pick, {user.mention}.\n"
@@ -244,6 +264,8 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
     
 
 async def choose_phase(interaction: Interaction, users: list[Member], options_per_player: int, use_pot: bool = True):
+    with OptionsModel(interaction.guild, interaction.channel) as options_model:
+        options_model.clear_auto_actions()
     user_picks: dict[discord.Member, str] = {}
     locks: dict[int, Lock] = {}
     for user in users:
@@ -339,6 +361,16 @@ async def city_states_balanced(interaction: Interaction, amount_of_each_type: in
     await interaction.response.send_message(f"{interaction.user.mention} has generated {amount} random city states with type restrictions.\n{city_state_message(city_states)}")
 
 
+@app_commands.command(name="auto_ban", description="Set up automatic bans for the current/next draft.")
+async def auto_ban(interaction: Interaction):
+    await interaction.response.send_message("Configure auto bans", view=AutoBanView(interaction.guild, interaction.channel, interaction.user), ephemeral=True)
+
+
+@app_commands.command(name="auto_add", description="Set up automatic pot picks for the current/next draft.")
+async def auto_add(interaction: Interaction):
+    await interaction.response.send_message("Configure auto pot picks", view=AutoAddView(interaction.guild, interaction.channel, interaction.user), ephemeral=True)
+
+
 class DraftBot(discord.Client):
     def __init__(self, intents: discord.Intents = discord.Intents.default()):
         super().__init__(intents=intents)
@@ -360,6 +392,8 @@ class DraftBot(discord.Client):
         self.tree.add_command(city_states_balanced)
         self.tree.add_command(day_poll)
         self.tree.add_command(time_poll)
+        self.tree.add_command(auto_ban)
+        self.tree.add_command(auto_add)
         # Sync the application command with Discord.
         await self.tree.sync()
         print("Completed command syncing.")
