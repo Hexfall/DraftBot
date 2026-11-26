@@ -196,7 +196,7 @@ async def ban_phase(interaction: Interaction, users: list[discord.Member], bans:
             auto_ban = options_model.get_valid_auto_ban(user)
             if auto_ban is not None:
                 options_model.add_ban(auto_ban)
-                await interaction.channel.send(f"# {interaction.user.mention} has banned {EmojiModel().get_emoji(auto_ban)} *{auto_ban}*")
+                await interaction.channel.send(f"# {user.mention} has banned {EmojiModel().get_emoji(auto_ban)} *{auto_ban}*")
                 lock.release()
                 continue
 
@@ -235,7 +235,7 @@ async def pick_phase(interaction: Interaction, users: list[discord.Member], pick
             auto_pick = options_model.get_valid_auto_pick(user)
             if auto_pick is not None:
                 options_model.add_pot(auto_pick)
-                await interaction.channel.send(f"# {interaction.user.mention} has added {EmojiModel().get_emoji(auto_pick)} *{auto_pick}* to the pot")
+                await interaction.channel.send(f"# {user.mention} has added {EmojiModel().get_emoji(auto_pick)} *{auto_pick}* to the pot")
                 lock.release()
                 continue
 
